@@ -164,6 +164,11 @@ export function DashboardScreen() {
     }
   }, [motherId]);
 
+  const statusCardStyle = useMemo<StyleProp<ViewStyle>>(
+    () => [globalStyles.card as ViewStyle, styles.statusCard, statusVariant.container],
+    [statusVariant.container],
+  );
+
   return (
     <ScrollView
       style={styles.container}
@@ -178,7 +183,7 @@ export function DashboardScreen() {
         </Text>
       </View>
 
-      <View style={[globalStyles.card, styles.statusCard, statusVariant.container]}>
+      <View style={statusCardStyle}>
         <Text style={statusVariant.badge}>{(inference?.status ?? 'Belum ada data').toUpperCase()}</Text>
         {inference?.recommendation ? (
           <Text style={statusVariant.text}>{inference.recommendation}</Text>
