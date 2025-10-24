@@ -9,44 +9,44 @@ import { colors, globalStyles, spacing } from '@/styles';
 
 const STATUS_VARIANTS = StyleSheet.create({
   healthyContainer: {
-    borderColor: colors.statusHealthyBorder,
-    backgroundColor: colors.statusHealthyBackground,
+    borderColor: colors.primary,
+    backgroundColor: colors.primaryTint,
   },
   healthyBadge: {
-    backgroundColor: colors.statusHealthyBadge,
-    color: colors.statusHealthyBorder,
+    backgroundColor: colors.primaryTint,
+    color: colors.primary,
   },
   healthyText: {
-    color: colors.statusHealthyBorder,
+    color: colors.primary,
   },
   warningContainer: {
-    borderColor: colors.statusWarningBorder,
-    backgroundColor: colors.statusWarningBackground,
+    borderColor: colors.accent,
+    backgroundColor: colors.accentTint,
   },
   warningBadge: {
-    backgroundColor: colors.statusWarningBadge,
-    color: colors.statusWarningBorder,
+    backgroundColor: colors.accentTint,
+    color: colors.accent,
   },
   warningText: {
-    color: colors.statusWarningBorder,
+    color: colors.accent,
   },
   criticalContainer: {
-    borderColor: colors.statusCriticalBorder,
-    backgroundColor: colors.statusCriticalBackground,
+    borderColor: colors.danger,
+    backgroundColor: colors.dangerTint,
   },
   criticalBadge: {
-    backgroundColor: colors.statusCriticalBadge,
-    color: colors.statusCriticalBorder,
+    backgroundColor: colors.dangerTint,
+    color: colors.danger,
   },
   criticalText: {
-    color: colors.statusCriticalBorder,
+    color: colors.danger,
   },
   unknownContainer: {
-    borderColor: colors.statusUnknownBorder,
-    backgroundColor: colors.statusUnknownBackground,
+    borderColor: colors.textMuted,
+    backgroundColor: 'rgba(125, 117, 149, 0.14)',
   },
   unknownBadge: {
-    backgroundColor: colors.statusUnknownBadge,
+    backgroundColor: 'rgba(125, 117, 149, 0.2)',
     color: colors.textMuted,
   },
   unknownText: {
@@ -165,7 +165,7 @@ export function DashboardScreen() {
   }, [motherId]);
 
   const statusCardStyle = useMemo<StyleProp<ViewStyle>>(
-    () => [globalStyles.card as ViewStyle, styles.statusCard, statusVariant.container],
+    () => [globalStyles.cardPastel as ViewStyle, styles.statusCard, statusVariant.container],
     [statusVariant.container],
   );
 
@@ -230,7 +230,7 @@ export function DashboardScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.brandBackground,
+    backgroundColor: colors.background,
   },
   contentContainer: {
     paddingTop: spacing.xxxxl,
@@ -248,13 +248,13 @@ const styles = StyleSheet.create({
     marginTop: spacing.xs,
     fontSize: 30,
     fontWeight: '700',
-    color: colors.brandGreen,
+    color: colors.primary,
   },
   description: {
     marginTop: spacing.sm,
     fontSize: 16,
     lineHeight: 24,
-    color: colors.textSecondary,
+    color: colors.textMuted,
   },
   statusCard: {
     borderWidth: 1,
@@ -276,11 +276,12 @@ const styles = StyleSheet.create({
     marginTop: spacing.md,
     fontSize: 16,
     lineHeight: 24,
+    color: colors.textPrimary,
   },
   statusUpdatedAt: {
     marginTop: spacing.sm,
     fontSize: 12,
-    color: colors.muted,
+    color: colors.textMuted,
   },
   dailyNeedsCard: {
     marginBottom: spacing.xl,
@@ -298,36 +299,36 @@ const styles = StyleSheet.create({
   },
   dailyNeedsLabel: {
     fontSize: 16,
-    color: colors.textSecondary,
+    color: colors.textMuted,
   },
   energyRow: {
-    backgroundColor: colors.brandGreenBackground,
+    backgroundColor: colors.accentTint,
   },
   proteinRow: {
-    backgroundColor: colors.brandPinkBackground,
+    backgroundColor: colors.secondaryTint,
   },
   fluidRow: {
-    backgroundColor: colors.brandGreenBackground,
+    backgroundColor: colors.primaryTint,
   },
   energyValue: {
     fontSize: 18,
     fontWeight: '600',
-    color: colors.brandGreen,
+    color: colors.primary,
   },
   proteinValue: {
     fontSize: 18,
     fontWeight: '600',
-    color: colors.brandPink,
+    color: colors.secondary,
   },
   errorText: {
     marginTop: spacing.xl,
     fontSize: 14,
-    color: colors.error,
+    color: colors.danger,
   },
   signOutContainer: {
     marginTop: spacing.xxxl,
   },
   logoutButton: {
-    backgroundColor: colors.error,
+    backgroundColor: colors.danger,
   },
 });

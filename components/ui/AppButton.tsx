@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 
 import colors from '@/styles/colors';
+import radius from '@/styles/radius';
 
 export type AppButtonVariant = 'primary' | 'secondary';
 
@@ -42,7 +43,7 @@ const AppButtonComponent = ({
       {...props}
     >
       {loading ? (
-        <ActivityIndicator color={colors.textInverted} />
+        <ActivityIndicator color={colors.card} />
       ) : (
         <Text style={[styles.label, textStyle]}>{label}</Text>
       )}
@@ -55,7 +56,7 @@ export const AppButton = memo(AppButtonComponent);
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    borderRadius: 16,
+    borderRadius: radius.lg,
     paddingVertical: 12,
     paddingHorizontal: 16,
     alignItems: 'center',
@@ -76,7 +77,7 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   label: {
-    color: colors.textInverted,
+    color: colors.card,
     fontSize: 16,
     fontWeight: '700',
   },

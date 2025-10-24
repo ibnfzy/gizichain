@@ -103,7 +103,7 @@ export function RegisterScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: colors.brandBackground,
+    backgroundColor: colors.background,
   },
   contentContainer: {
     flexGrow: 1,
@@ -117,13 +117,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 30,
     fontWeight: '700',
-    color: colors.brandGreen,
+    color: colors.primary,
   },
   subtitle: {
     marginTop: spacing.sm,
     fontSize: 16,
     lineHeight: 24,
-    color: colors.textSecondary,
+    color: colors.textMuted,
   },
   formFields: {
     gap: spacing.xl,
@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
   errorText: {
     marginTop: spacing.lg,
     fontSize: 14,
-    color: colors.error,
+    color: colors.danger,
   },
   submitButtonContainer: {
     marginTop: spacing.xxl,
@@ -142,6 +142,6 @@ const styles = StyleSheet.create({
   },
   linkText: {
     fontSize: 14,
-    color: colors.brandPink,
+    color: colors.secondary,
   },
 });

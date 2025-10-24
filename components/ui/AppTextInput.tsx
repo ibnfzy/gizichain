@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 
 import colors from '@/styles/colors';
+import radius from '@/styles/radius';
 
 interface AppTextInputProps extends TextInputProps {
   errorMessage?: string;
@@ -23,7 +24,7 @@ export const AppTextInput = forwardRef<TextInput, AppTextInputProps>(
     <View style={[styles.container, containerStyle]}>
       <TextInput
         ref={ref}
-        placeholderTextColor={colors.muted}
+        placeholderTextColor={colors.textMuted}
         style={[styles.input, style]}
         {...props}
       />
@@ -44,10 +45,10 @@ const styles = StyleSheet.create({
   },
   input: {
     width: '100%',
-    borderRadius: 16,
+    borderRadius: radius.lg,
     borderWidth: 1,
     borderColor: colors.border,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.card,
     paddingHorizontal: 16,
     paddingVertical: 12,
     fontSize: 16,
@@ -63,6 +64,6 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: 12,
-    color: colors.error,
+    color: colors.danger,
   },
 });
