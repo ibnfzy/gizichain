@@ -1,17 +1,8 @@
 import { useState } from 'react';
-import {
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { Text } from 'react-native';
 import { useRouter } from 'expo-router';
-import { AppButton, AppTextInput } from '@/components/ui';
+import { AuthLayout, AppTextInput } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
-import { colors, spacing } from '@/styles';
 
 export function RegisterScreen() {
   const router = useRouter();
@@ -55,93 +46,35 @@ export function RegisterScreen() {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.screen}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    <AuthLayout
+      title="Buat Akun"
+      subtitle="Daftarkan diri Anda untuk mulai memonitor kebutuhan gizi."
+      submitLabel="Daftar"
+      onSubmit={handleSubmit}
+      submitLoading={submitting}
+      submitDisabled={isLoading}
+      linkLabel="Sudah punya akun? Masuk di sini"
+      onLinkPress={() => router.back()}
+      errorMessage={error}
+      heroMessage="Mari mulai perjalanan sehat Anda!"
+      illustration={<Text style={{ fontSize: 38 }}>🌿</Text>}
     >
-      <ScrollView contentContainerStyle={styles.contentContainer}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Buat Akun</Text>
-          <Text style={styles.subtitle}>
-            Daftarkan diri Anda untuk mulai memonitor kebutuhan gizi.
-          </Text>
-        </View>
-
-        <View style={styles.formFields}>
-          <AppTextInput placeholder="Nama lengkap" value={name} onChangeText={setName} />
-          <AppTextInput
-            autoCapitalize="none"
-            autoComplete="email"
-            keyboardType="email-address"
-            placeholder="Email"
-            value={email}
-            onChangeText={setEmail}
-          />
-          <AppTextInput placeholder="Kata sandi" secureTextEntry value={password} onChangeText={setPassword} />
-          <AppTextInput
-            placeholder="Konfirmasi kata sandi"
-            secureTextEntry
-            value={confirmation}
-            onChangeText={setConfirmation}
-          />
-        </View>
-
-        {error ? <Text style={styles.errorText}>{error}</Text> : null}
-
-        <View style={styles.submitButtonContainer}>
-          <AppButton label="Daftar" onPress={handleSubmit} loading={submitting} disabled={isLoading} />
-        </View>
-
-        <Pressable style={styles.linkButton} onPress={() => router.back()}>
-          <Text style={styles.linkText}>Sudah punya akun? Masuk di sini</Text>
-        </Pressable>
-      </ScrollView>
-    </KeyboardAvoidingView>
+      <AppTextInput placeholder="Nama lengkap" value={name} onChangeText={setName} />
+      <AppTextInput
+        autoCapitalize="none"
+        autoComplete="email"
+        keyboardType="email-address"
+        placeholder="Email"
+        value={email}
+        onChangeText={setEmail}
+      />
+      <AppTextInput placeholder="Kata sandi" secureTextEntry value={password} onChangeText={setPassword} />
+      <AppTextInput
+        placeholder="Konfirmasi kata sandi"
+        secureTextEntry
+        value={confirmation}
+        onChangeText={setConfirmation}
+      />
+    </AuthLayout>
   );
 }
-
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  contentContainer: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    paddingHorizontal: spacing.xxl,
-    paddingVertical: spacing.xxxxl,
-  },
-  header: {
-    marginBottom: spacing.xxl,
-  },
-  title: {
-    fontSize: 30,
-    fontWeight: '700',
-    color: colors.primary,
-  },
-  subtitle: {
-    marginTop: spacing.sm,
-    fontSize: 16,
-    lineHeight: 24,
-    color: colors.textMuted,
-  },
-  formFields: {
-    gap: spacing.xl,
-  },
-  errorText: {
-    marginTop: spacing.lg,
-    fontSize: 14,
-    color: colors.danger,
-  },
-  submitButtonContainer: {
-    marginTop: spacing.xxl,
-  },
-  linkButton: {
-    marginTop: spacing.xl,
-    alignItems: 'center',
-  },
-  linkText: {
-    fontSize: 14,
-    color: colors.secondary,
-  },
-});

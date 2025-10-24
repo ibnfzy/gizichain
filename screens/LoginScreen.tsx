@@ -1,17 +1,8 @@
 import { useState } from 'react';
-import {
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { Text } from 'react-native';
 import { useRouter } from 'expo-router';
-import { AppButton, AppTextInput } from '@/components/ui';
+import { AuthLayout, AppTextInput } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
-import { colors, spacing } from '@/styles';
 
 export function LoginScreen() {
   const router = useRouter();
@@ -43,89 +34,33 @@ export function LoginScreen() {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.screen}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    <AuthLayout
+      title="Masuk"
+      subtitle="Masuk untuk memantau status gizi terkini."
+      submitLabel="Masuk"
+      onSubmit={handleSubmit}
+      submitLoading={submitting}
+      submitDisabled={isLoading}
+      linkLabel="Belum punya akun? Daftar sekarang"
+      onLinkPress={() => router.push('/register')}
+      errorMessage={error}
+      heroMessage="Selamat datang kembali!"
+      illustration={<Text style={{ fontSize: 38 }}>💫</Text>}
     >
-      <ScrollView contentContainerStyle={styles.contentContainer}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Selamat Datang</Text>
-          <Text style={styles.subtitle}>Masuk untuk memantau status gizi terkini.</Text>
-        </View>
-
-        <View style={styles.formFields}>
-          <AppTextInput
-            autoCapitalize="none"
-            autoComplete="email"
-            keyboardType="email-address"
-            placeholder="Email"
-            value={email}
-            onChangeText={setEmail}
-          />
-          <AppTextInput
-            placeholder="Kata sandi"
-            secureTextEntry
-            value={password}
-            onChangeText={setPassword}
-          />
-        </View>
-
-        {error ? <Text style={styles.errorText}>{error}</Text> : null}
-
-        <View style={styles.submitButtonContainer}>
-          <AppButton label="Masuk" onPress={handleSubmit} loading={submitting} disabled={isLoading} />
-        </View>
-
-        <Pressable style={styles.linkButton} onPress={() => router.push('/register')}>
-          <Text style={styles.linkText}>Belum punya akun? Daftar sekarang</Text>
-        </Pressable>
-      </ScrollView>
-    </KeyboardAvoidingView>
+      <AppTextInput
+        autoCapitalize="none"
+        autoComplete="email"
+        keyboardType="email-address"
+        placeholder="Email"
+        value={email}
+        onChangeText={setEmail}
+      />
+      <AppTextInput
+        placeholder="Kata sandi"
+        secureTextEntry
+        value={password}
+        onChangeText={setPassword}
+      />
+    </AuthLayout>
   );
 }
-
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  contentContainer: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    paddingHorizontal: spacing.xxl,
-    paddingVertical: spacing.xxxxl,
-  },
-  header: {
-    marginBottom: spacing.xxl,
-  },
-  title: {
-    fontSize: 30,
-    fontWeight: '700',
-    color: colors.primary,
-  },
-  subtitle: {
-    marginTop: spacing.sm,
-    fontSize: 16,
-    lineHeight: 24,
-    color: colors.textMuted,
-  },
-  formFields: {
-    gap: spacing.xl,
-  },
-  errorText: {
-    marginTop: spacing.lg,
-    fontSize: 14,
-    color: colors.danger,
-  },
-  submitButtonContainer: {
-    marginTop: spacing.xxl,
-  },
-  linkButton: {
-    marginTop: spacing.xl,
-    alignItems: 'center',
-  },
-  linkText: {
-    fontSize: 14,
-    color: colors.secondary,
-  },
-});

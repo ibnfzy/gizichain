@@ -13,7 +13,7 @@ import {
 import colors from '@/styles/colors';
 import radius from '@/styles/radius';
 
-export type AppButtonVariant = 'primary' | 'secondary' | 'danger' | 'outline';
+export type AppButtonVariant = 'primary' | 'secondary' | 'danger' | 'outline' | 'pastel';
 
 interface AppButtonProps extends Omit<PressableProps, 'style' | 'children'> {
   label: string;
@@ -153,6 +153,23 @@ const VARIANT_MAP: Record<
     indicatorColor: colors.primary,
     rippleColor: colors.primaryTint,
   },
+  pastel: {
+    container: {
+      backgroundColor: colors.primaryPastel,
+      borderWidth: 1,
+      borderColor: colors.outlineMuted,
+      shadowOpacity: 0.14,
+      shadowRadius: 10,
+      shadowOffset: { width: 0, height: 4 },
+      elevation: 3,
+    },
+    label: {
+      color: colors.pastelTitle,
+      fontWeight: '600',
+    },
+    indicatorColor: colors.pastelTitle,
+    rippleColor: colors.primaryPastel,
+  },
 };
 
 const DISABLED_VARIANT_MAP: Partial<
@@ -205,6 +222,17 @@ const DISABLED_VARIANT_MAP: Partial<
       color: colors.outlineMuted,
     },
     indicatorColor: colors.outlineMuted,
+    rippleColor: colors.outlineMuted,
+  },
+  pastel: {
+    container: {
+      backgroundColor: colors.lavenderPastel,
+      borderColor: colors.outlineMuted,
+    },
+    label: {
+      color: colors.textMuted,
+    },
+    indicatorColor: colors.textMuted,
     rippleColor: colors.outlineMuted,
   },
 };
