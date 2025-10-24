@@ -1,5 +1,5 @@
 import { createContext, ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
-import * as SecureStore from 'expo-secure-store';
+import { deleteItemAsync, getItemAsync, setItemAsync } from './secureStorage';
 import {
   ApiUser,
   AuthResponse,
@@ -36,8 +36,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const persistAuth = useCallback(async (nextToken: string, nextUser: ApiUser) => {
     await Promise.all([
-      SecureStore.setItemAsync(TOKEN_KEY, nextToken),
-      SecureStore.setItemAsync(USER_KEY, JSON.stringify(nextUser)),
+      setItemAsync(TOKEN_KEY, nextToken),
+      setItemAsync(USER_KEY, JSON.stringify(nextUser)),
     ]);
     setAuthToken(nextToken);
     setToken(nextToken);
@@ -47,8 +47,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const restoreAuth = useCallback(async () => {
     try {
       const [storedToken, storedUser] = await Promise.all([
-        SecureStore.getItemAsync(TOKEN_KEY),
-        SecureStore.getItemAsync(USER_KEY),
+        getItemAsync(TOKEN_KEY),
+        getItemAsync(USER_KEY),
       ]);
 
       if (storedToken) {
@@ -63,8 +63,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     } catch (error) {
       console.warn('Failed to restore authentication state', error);
       await Promise.all([
-        SecureStore.deleteItemAsync(TOKEN_KEY),
-        SecureStore.deleteItemAsync(USER_KEY),
+        deleteItemAsync(TOKEN_KEY),
+        deleteItemAsync(USER_KEY),
       ]);
       setAuthToken(null);
       setToken(null);
@@ -98,8 +98,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const handleLogout = useCallback(async () => {
     await Promise.all([
-      SecureStore.deleteItemAsync(TOKEN_KEY),
-      SecureStore.deleteItemAsync(USER_KEY),
+      deleteItemAsync(TOKEN_KEY),
+      deleteItemAsync(USER_KEY),
     ]);
     setAuthToken(null);
     setUser(null);
