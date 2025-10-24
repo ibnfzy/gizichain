@@ -8,8 +8,7 @@ import {
   View,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { AppTextInput } from '@/components/ui/AppTextInput';
-import { AppButton } from '@/components/ui/AppButton';
+import { AppButton, AppTextInput } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
 
 export function LoginScreen() {

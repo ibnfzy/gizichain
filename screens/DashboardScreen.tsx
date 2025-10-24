@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { RefreshControl, ScrollView, Text, View } from 'react-native';
+import { RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { AppButton } from '@/components/ui/AppButton';
-import { InfoCard } from '@/components/ui/InfoCard';
+import { AppButton, InfoCard } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
 import { InferenceData, fetchLatestInference } from '@/services/api';
+import colors from '@/styles/colors';
 
 const STATUS_VARIANTS = {
   healthy: {
@@ -135,7 +135,7 @@ export function DashboardScreen() {
         ) : null}
       </View>
 
-      <InfoCard title="Kebutuhan Harian" className="gap-3">
+      <InfoCard title="Kebutuhan Harian" contentContainerStyle={styles.dailyNeedsContent}>
         <View className="flex-row items-center justify-between rounded-2xl bg-brand-green/5 px-4 py-3">
           <Text className="text-base text-gray-600">Energi</Text>
           <Text className="text-lg font-semibold text-brand-green">{inference?.energy ?? 0} kkal</Text>
@@ -153,12 +153,17 @@ export function DashboardScreen() {
       {error ? <Text className="mt-6 text-sm text-rose-500">{error}</Text> : null}
 
       <View className="mt-10">
-        <AppButton
-          label="Keluar"
-          onPress={logout}
-          className="bg-brand-pink"
-        />
+        <AppButton label="Keluar" onPress={logout} style={styles.logoutButton} />
       </View>
     </ScrollView>
   );
 }
+
+const styles = StyleSheet.create({
+  dailyNeedsContent: {
+    gap: 12,
+  },
+  logoutButton: {
+    backgroundColor: colors.error,
+  },
+});
