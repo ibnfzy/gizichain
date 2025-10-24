@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
+import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
 import { useRouter } from 'expo-router';
 import { AppButton, InfoCard } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
@@ -81,38 +82,42 @@ export function DashboardScreen() {
 
   const motherId = user?.id;
 
-  const statusVariant = useMemo(() => {
+  const statusVariant = useMemo<{
+    container: ViewStyle;
+    badge: StyleProp<TextStyle>;
+    text: StyleProp<TextStyle>;
+  }>(() => {
     const status = normalizeStatus(inference?.status);
 
     if (status === 'healthy') {
       return {
         container: STATUS_VARIANTS.healthyContainer,
-        badge: [styles.statusBadge, STATUS_VARIANTS.healthyBadge],
-        text: [styles.statusText, STATUS_VARIANTS.healthyText],
-      } as const;
+        badge: StyleSheet.compose(styles.statusBadge, STATUS_VARIANTS.healthyBadge),
+        text: StyleSheet.compose(styles.statusText, STATUS_VARIANTS.healthyText),
+      };
     }
 
     if (status === 'warning') {
       return {
         container: STATUS_VARIANTS.warningContainer,
-        badge: [styles.statusBadge, STATUS_VARIANTS.warningBadge],
-        text: [styles.statusText, STATUS_VARIANTS.warningText],
-      } as const;
+        badge: StyleSheet.compose(styles.statusBadge, STATUS_VARIANTS.warningBadge),
+        text: StyleSheet.compose(styles.statusText, STATUS_VARIANTS.warningText),
+      };
     }
 
     if (status === 'critical') {
       return {
         container: STATUS_VARIANTS.criticalContainer,
-        badge: [styles.statusBadge, STATUS_VARIANTS.criticalBadge],
-        text: [styles.statusText, STATUS_VARIANTS.criticalText],
-      } as const;
+        badge: StyleSheet.compose(styles.statusBadge, STATUS_VARIANTS.criticalBadge),
+        text: StyleSheet.compose(styles.statusText, STATUS_VARIANTS.criticalText),
+      };
     }
 
     return {
       container: STATUS_VARIANTS.unknownContainer,
-      badge: [styles.statusBadge, STATUS_VARIANTS.unknownBadge],
-      text: [styles.statusText, STATUS_VARIANTS.unknownText],
-    } as const;
+      badge: StyleSheet.compose(styles.statusBadge, STATUS_VARIANTS.unknownBadge),
+      text: StyleSheet.compose(styles.statusText, STATUS_VARIANTS.unknownText),
+    };
   }, [inference?.status]);
 
   const fetchData = useCallback(async () => {
