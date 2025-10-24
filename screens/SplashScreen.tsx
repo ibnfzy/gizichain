@@ -1,7 +1,8 @@
 import { useEffect } from 'react';
-import { Image, Text, View } from 'react-native';
+import { Image, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/hooks/useAuth';
+import { colors, spacing } from '@/styles';
 
 export function SplashScreen() {
   const router = useRouter();
@@ -22,14 +23,46 @@ export function SplashScreen() {
   }, [isLoading, router, user]);
 
   return (
-    <View className="flex-1 items-center justify-center bg-brand-white px-8">
-      <View className="items-center justify-center rounded-full bg-brand-green/10 p-12">
-        <Image source={require('../assets/images/splash-icon.png')} className="h-32 w-32" resizeMode="contain" />
+    <View style={styles.container}>
+      <View style={styles.iconWrapper}>
+        <Image source={require('../assets/images/splash-icon.png')} style={styles.icon} resizeMode="contain" />
       </View>
-      <Text className="mt-8 text-3xl font-bold text-brand-green">GiziChain</Text>
-      <Text className="mt-2 text-center text-base text-gray-600">
-        Mendampingi ibu menjaga status gizi secara digital
-      </Text>
+      <Text style={styles.title}>GiziChain</Text>
+      <Text style={styles.subtitle}>Mendampingi ibu menjaga status gizi secara digital</Text>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.brandBackground,
+    paddingHorizontal: spacing.xxl,
+  },
+  iconWrapper: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 999,
+    backgroundColor: colors.brandGreenBackground,
+    padding: spacing.xxxxl,
+  },
+  icon: {
+    width: 128,
+    height: 128,
+  },
+  title: {
+    marginTop: spacing.xxxl,
+    fontSize: 30,
+    fontWeight: '700',
+    color: colors.brandGreen,
+  },
+  subtitle: {
+    marginTop: spacing.sm,
+    textAlign: 'center',
+    fontSize: 16,
+    lineHeight: 24,
+    color: colors.textSecondary,
+  },
+});
