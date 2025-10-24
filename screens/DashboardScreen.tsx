@@ -4,30 +4,54 @@ import { useRouter } from 'expo-router';
 import { AppButton, InfoCard } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
 import { InferenceData, fetchLatestInference } from '@/services/api';
-import colors from '@/styles/colors';
+import { colors, globalStyles, spacing } from '@/styles';
 
-const STATUS_VARIANTS = {
-  healthy: {
-    container: 'border border-brand-green bg-brand-green/10',
-    badge: 'self-start rounded-full bg-brand-green/20 px-3 py-1 text-sm font-semibold text-brand-green',
-    text: 'text-brand-green',
+const STATUS_VARIANTS = StyleSheet.create({
+  healthyContainer: {
+    borderColor: colors.statusHealthyBorder,
+    backgroundColor: colors.statusHealthyBackground,
   },
-  warning: {
-    container: 'border border-amber-400 bg-amber-100/60',
-    badge: 'self-start rounded-full bg-amber-200 px-3 py-1 text-sm font-semibold text-amber-700',
-    text: 'text-amber-700',
+  healthyBadge: {
+    backgroundColor: colors.statusHealthyBadge,
+    color: colors.statusHealthyBorder,
   },
-  critical: {
-    container: 'border border-rose-500 bg-rose-100/70',
-    badge: 'self-start rounded-full bg-rose-200 px-3 py-1 text-sm font-semibold text-rose-600',
-    text: 'text-rose-600',
+  healthyText: {
+    color: colors.statusHealthyBorder,
   },
-  unknown: {
-    container: 'border border-gray-300 bg-gray-100/70',
-    badge: 'self-start rounded-full bg-gray-200 px-3 py-1 text-sm font-semibold text-gray-600',
-    text: 'text-gray-600',
+  warningContainer: {
+    borderColor: colors.statusWarningBorder,
+    backgroundColor: colors.statusWarningBackground,
   },
-} as const;
+  warningBadge: {
+    backgroundColor: colors.statusWarningBadge,
+    color: colors.statusWarningBorder,
+  },
+  warningText: {
+    color: colors.statusWarningBorder,
+  },
+  criticalContainer: {
+    borderColor: colors.statusCriticalBorder,
+    backgroundColor: colors.statusCriticalBackground,
+  },
+  criticalBadge: {
+    backgroundColor: colors.statusCriticalBadge,
+    color: colors.statusCriticalBorder,
+  },
+  criticalText: {
+    color: colors.statusCriticalBorder,
+  },
+  unknownContainer: {
+    borderColor: colors.statusUnknownBorder,
+    backgroundColor: colors.statusUnknownBackground,
+  },
+  unknownBadge: {
+    backgroundColor: colors.statusUnknownBadge,
+    color: colors.textMuted,
+  },
+  unknownText: {
+    color: colors.textMuted,
+  },
+});
 
 const normalizeStatus = (status?: string) => {
   const normalized = status?.toLowerCase() ?? 'unknown';
@@ -57,9 +81,39 @@ export function DashboardScreen() {
 
   const motherId = user?.id;
 
-  const statusVariant = useMemo(() => STATUS_VARIANTS[normalizeStatus(inference?.status)], [
-    inference?.status,
-  ]);
+  const statusVariant = useMemo(() => {
+    const status = normalizeStatus(inference?.status);
+
+    if (status === 'healthy') {
+      return {
+        container: STATUS_VARIANTS.healthyContainer,
+        badge: [styles.statusBadge, STATUS_VARIANTS.healthyBadge],
+        text: [styles.statusText, STATUS_VARIANTS.healthyText],
+      } as const;
+    }
+
+    if (status === 'warning') {
+      return {
+        container: STATUS_VARIANTS.warningContainer,
+        badge: [styles.statusBadge, STATUS_VARIANTS.warningBadge],
+        text: [styles.statusText, STATUS_VARIANTS.warningText],
+      } as const;
+    }
+
+    if (status === 'critical') {
+      return {
+        container: STATUS_VARIANTS.criticalContainer,
+        badge: [styles.statusBadge, STATUS_VARIANTS.criticalBadge],
+        text: [styles.statusText, STATUS_VARIANTS.criticalText],
+      } as const;
+    }
+
+    return {
+      container: STATUS_VARIANTS.unknownContainer,
+      badge: [styles.statusBadge, STATUS_VARIANTS.unknownBadge],
+      text: [styles.statusText, STATUS_VARIANTS.unknownText],
+    } as const;
+  }, [inference?.status]);
 
   const fetchData = useCallback(async () => {
     if (!motherId) {
@@ -107,52 +161,56 @@ export function DashboardScreen() {
 
   return (
     <ScrollView
-      className="flex-1 bg-brand-white"
-      contentContainerClassName="px-8 pb-16 pt-12"
+      style={styles.container}
+      contentContainerStyle={styles.contentContainer}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}
     >
-      <View className="mb-8">
-        <Text className="text-xl text-gray-500">Halo,</Text>
-        <Text className="mt-1 text-3xl font-bold text-brand-green">{user?.name ?? 'Ibu Hebat'}</Text>
-        <Text className="mt-2 text-base text-gray-600">
+      <View style={styles.header}>
+        <Text style={styles.greeting}>Halo,</Text>
+        <Text style={styles.userName}>{user?.name ?? 'Ibu Hebat'}</Text>
+        <Text style={styles.description}>
           Berikut adalah status gizi dan kebutuhan harian Anda hari ini.
         </Text>
       </View>
 
-      <View className={`mb-6 rounded-3xl p-6 ${statusVariant.container}`}>
-        <Text className={statusVariant.badge}>{(inference?.status ?? 'Belum ada data').toUpperCase()}</Text>
+      <View style={[globalStyles.card, styles.statusCard, statusVariant.container]}>
+        <Text style={statusVariant.badge}>{(inference?.status ?? 'Belum ada data').toUpperCase()}</Text>
         {inference?.recommendation ? (
-          <Text className={`mt-4 text-base ${statusVariant.text}`}>{inference.recommendation}</Text>
+          <Text style={statusVariant.text}>{inference.recommendation}</Text>
         ) : (
-          <Text className={`mt-4 text-base ${statusVariant.text}`}>
+          <Text style={statusVariant.text}>
             {loading
               ? 'Memuat status gizi...'
               : 'Status gizi terbaru akan muncul di sini setelah pemeriksaan.'}
           </Text>
         )}
         {inference?.updatedAt ? (
-          <Text className="mt-3 text-xs text-gray-500">Pembaruan terakhir: {inference.updatedAt}</Text>
+          <Text style={styles.statusUpdatedAt}>Pembaruan terakhir: {inference.updatedAt}</Text>
         ) : null}
       </View>
 
-      <InfoCard title="Kebutuhan Harian" contentContainerStyle={styles.dailyNeedsContent}>
-        <View className="flex-row items-center justify-between rounded-2xl bg-brand-green/5 px-4 py-3">
-          <Text className="text-base text-gray-600">Energi</Text>
-          <Text className="text-lg font-semibold text-brand-green">{inference?.energy ?? 0} kkal</Text>
+      <InfoCard
+        title="Kebutuhan Harian"
+        style={styles.dailyNeedsCard}
+        contentContainerStyle={styles.dailyNeedsContent}
+      >
+        <View style={[styles.dailyNeedsRow, styles.energyRow]}>
+          <Text style={styles.dailyNeedsLabel}>Energi</Text>
+          <Text style={styles.energyValue}>{inference?.energy ?? 0} kkal</Text>
         </View>
-        <View className="flex-row items-center justify-between rounded-2xl bg-brand-pink/5 px-4 py-3">
-          <Text className="text-base text-gray-600">Protein</Text>
-          <Text className="text-lg font-semibold text-brand-pink">{inference?.protein ?? 0} g</Text>
+        <View style={[styles.dailyNeedsRow, styles.proteinRow]}>
+          <Text style={styles.dailyNeedsLabel}>Protein</Text>
+          <Text style={styles.proteinValue}>{inference?.protein ?? 0} g</Text>
         </View>
-        <View className="flex-row items-center justify-between rounded-2xl bg-brand-green/5 px-4 py-3">
-          <Text className="text-base text-gray-600">Cairan</Text>
-          <Text className="text-lg font-semibold text-brand-green">{inference?.fluid ?? 0} ml</Text>
+        <View style={[styles.dailyNeedsRow, styles.fluidRow]}>
+          <Text style={styles.dailyNeedsLabel}>Cairan</Text>
+          <Text style={styles.energyValue}>{inference?.fluid ?? 0} ml</Text>
         </View>
       </InfoCard>
 
-      {error ? <Text className="mt-6 text-sm text-rose-500">{error}</Text> : null}
+      {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
-      <View className="mt-10">
+      <View style={styles.signOutContainer}>
         <AppButton label="Keluar" onPress={logout} style={styles.logoutButton} />
       </View>
     </ScrollView>
@@ -160,8 +218,104 @@ export function DashboardScreen() {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.brandBackground,
+  },
+  contentContainer: {
+    paddingTop: spacing.xxxxl,
+    paddingBottom: spacing.xxxxxxl,
+  },
+  header: {
+    marginBottom: spacing.xxl,
+  },
+  greeting: {
+    fontSize: 20,
+    fontWeight: '500',
+    color: colors.textMuted,
+  },
+  userName: {
+    marginTop: spacing.xs,
+    fontSize: 30,
+    fontWeight: '700',
+    color: colors.brandGreen,
+  },
+  description: {
+    marginTop: spacing.sm,
+    fontSize: 16,
+    lineHeight: 24,
+    color: colors.textSecondary,
+  },
+  statusCard: {
+    borderWidth: 1,
+    borderRadius: 24,
+    padding: spacing.xl,
+    marginBottom: spacing.xl,
+    shadowOpacity: 0,
+    elevation: 0,
+  },
+  statusBadge: {
+    alignSelf: 'flex-start',
+    borderRadius: 999,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  statusText: {
+    marginTop: spacing.md,
+    fontSize: 16,
+    lineHeight: 24,
+  },
+  statusUpdatedAt: {
+    marginTop: spacing.sm,
+    fontSize: 12,
+    color: colors.muted,
+  },
+  dailyNeedsCard: {
+    marginBottom: spacing.xl,
+  },
   dailyNeedsContent: {
-    gap: 12,
+    gap: spacing.md,
+  },
+  dailyNeedsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderRadius: 20,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+  },
+  dailyNeedsLabel: {
+    fontSize: 16,
+    color: colors.textSecondary,
+  },
+  energyRow: {
+    backgroundColor: colors.brandGreenBackground,
+  },
+  proteinRow: {
+    backgroundColor: colors.brandPinkBackground,
+  },
+  fluidRow: {
+    backgroundColor: colors.brandGreenBackground,
+  },
+  energyValue: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: colors.brandGreen,
+  },
+  proteinValue: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: colors.brandPink,
+  },
+  errorText: {
+    marginTop: spacing.xl,
+    fontSize: 14,
+    color: colors.error,
+  },
+  signOutContainer: {
+    marginTop: spacing.xxxl,
   },
   logoutButton: {
     backgroundColor: colors.error,

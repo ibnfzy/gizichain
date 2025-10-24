@@ -4,12 +4,14 @@ import {
   Platform,
   Pressable,
   ScrollView,
+  StyleSheet,
   Text,
   View,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { AppButton, AppTextInput } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
+import { colors, spacing } from '@/styles';
 
 export function LoginScreen() {
   const router = useRouter();
@@ -42,16 +44,16 @@ export function LoginScreen() {
 
   return (
     <KeyboardAvoidingView
-      className="flex-1 bg-brand-white"
+      style={styles.screen}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <ScrollView contentContainerClassName="flex-grow justify-center px-8 py-10">
-        <View className="mb-8">
-          <Text className="text-3xl font-bold text-brand-green">Selamat Datang</Text>
-          <Text className="mt-2 text-base text-gray-600">Masuk untuk memantau status gizi terkini.</Text>
+      <ScrollView contentContainerStyle={styles.contentContainer}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Selamat Datang</Text>
+          <Text style={styles.subtitle}>Masuk untuk memantau status gizi terkini.</Text>
         </View>
 
-        <View className="gap-5">
+        <View style={styles.formFields}>
           <AppTextInput
             autoCapitalize="none"
             autoComplete="email"
@@ -68,18 +70,62 @@ export function LoginScreen() {
           />
         </View>
 
-        {error ? <Text className="mt-4 text-sm text-rose-500">{error}</Text> : null}
+        {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
-        <View className="mt-8">
+        <View style={styles.submitButtonContainer}>
           <AppButton label="Masuk" onPress={handleSubmit} loading={submitting} disabled={isLoading} />
         </View>
 
-        <Pressable className="mt-6" onPress={() => router.push('/register')}>
-          <Text className="text-center text-sm text-brand-pink">
-            Belum punya akun? Daftar sekarang
-          </Text>
+        <Pressable style={styles.linkButton} onPress={() => router.push('/register')}>
+          <Text style={styles.linkText}>Belum punya akun? Daftar sekarang</Text>
         </Pressable>
       </ScrollView>
     </KeyboardAvoidingView>
   );
 }
+
+const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    backgroundColor: colors.brandBackground,
+  },
+  contentContainer: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    paddingHorizontal: spacing.xxl,
+    paddingVertical: spacing.xxxxl,
+  },
+  header: {
+    marginBottom: spacing.xxl,
+  },
+  title: {
+    fontSize: 30,
+    fontWeight: '700',
+    color: colors.brandGreen,
+  },
+  subtitle: {
+    marginTop: spacing.sm,
+    fontSize: 16,
+    lineHeight: 24,
+    color: colors.textSecondary,
+  },
+  formFields: {
+    gap: spacing.xl,
+  },
+  errorText: {
+    marginTop: spacing.lg,
+    fontSize: 14,
+    color: colors.error,
+  },
+  submitButtonContainer: {
+    marginTop: spacing.xxl,
+  },
+  linkButton: {
+    marginTop: spacing.xl,
+    alignItems: 'center',
+  },
+  linkText: {
+    fontSize: 14,
+    color: colors.brandPink,
+  },
+});
