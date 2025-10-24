@@ -36,7 +36,7 @@ export function RegisterScreen() {
         password,
         password_confirmation: confirmation,
       });
-      router.replace('/dashboard');
+      router.replace('/(tabs)/dashboard');
     } catch (err: unknown) {
       setError('Tidak dapat mendaftarkan akun. Silakan coba lagi.');
       console.warn('Register error', err);

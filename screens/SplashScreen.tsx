@@ -13,7 +13,7 @@ export function SplashScreen() {
 
     const timeout = setTimeout(() => {
       if (user) {
-        router.replace('/dashboard');
+        router.replace('/(tabs)/dashboard');
       } else {
         router.replace('/login');
       }
