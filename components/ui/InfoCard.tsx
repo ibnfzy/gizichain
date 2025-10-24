@@ -1,19 +1,50 @@
-import { ReactNode } from 'react';
-import { Text, View } from 'react-native';
+import { ReactNode, memo } from 'react';
+import { StyleProp, StyleSheet, Text, TextStyle, View, ViewProps, ViewStyle } from 'react-native';
 
-interface InfoCardProps {
+import colors from '@/styles/colors';
+
+interface InfoCardProps extends ViewProps {
   title: string;
   children: ReactNode;
-  className?: string;
+  contentContainerStyle?: StyleProp<ViewStyle>;
+  titleStyle?: StyleProp<TextStyle>;
 }
 
-export function InfoCard({ title, children, className = '' }: InfoCardProps) {
-  const baseClassName = 'w-full rounded-2xl bg-white/95 p-5 shadow-sm shadow-brand-pink/10';
+const InfoCardComponent = ({
+  title,
+  children,
+  style,
+  contentContainerStyle,
+  titleStyle,
+  ...viewProps
+}: InfoCardProps) => (
+  <View style={[styles.container, style]} {...viewProps}>
+    <Text style={[styles.title, titleStyle]}>{title}</Text>
+    <View style={[styles.content, contentContainerStyle]}>{children}</View>
+  </View>
+);
 
-  return (
-    <View className={`${baseClassName} ${className}`.trim()}>
-      <Text className="mb-3 text-lg font-semibold text-gray-900">{title}</Text>
-      {children}
-    </View>
-  );
-}
+export const InfoCard = memo(InfoCardComponent);
+
+const styles = StyleSheet.create({
+  container: {
+    width: '100%',
+    borderRadius: 16,
+    backgroundColor: colors.surface,
+    padding: 20,
+    shadowColor: colors.shadow,
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 3,
+  },
+  title: {
+    marginBottom: 12,
+    fontSize: 18,
+    fontWeight: '600',
+    color: colors.textPrimary,
+  },
+  content: {
+    width: '100%',
+  },
+});
