@@ -1,10 +1,10 @@
 module.exports = function (api) {
   api.cache(true);
   return {
-    presets: [
-      require.resolve('babel-preset-expo'),
+    presets: [require.resolve('babel-preset-expo')],
+    plugins: [
       require.resolve('nativewind/babel'),
+      require.resolve('expo-router/babel'),
     ],
-    plugins: [require.resolve('expo-router/babel')],
   };
 };
