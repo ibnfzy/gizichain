@@ -26,6 +26,8 @@ const colors = {
   mintPastel: '#d2f5e3',
   lavenderPastel: '#ede9ff',
   skyPastel: '#dbeeff',
+  pastelTitle: '#706ad1',
+  pastelLink: '#f199c2',
   outlineMuted: '#c5bfe3',
   bubbleIbu: '#ffe9f3',
   bubblePakar: '#f1f0ff',

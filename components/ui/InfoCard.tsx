@@ -3,9 +3,10 @@ import { StyleProp, StyleSheet, Text, TextStyle, View, ViewProps, ViewStyle } fr
 
 import colors from '@/styles/colors';
 import radius from '@/styles/radius';
+import spacing from '@/styles/spacing';
 import typography from '@/styles/typography';
 
-export type InfoCardVariant = 'flat' | 'elevated' | 'info' | 'nutrient';
+export type InfoCardVariant = 'flat' | 'elevated' | 'info' | 'nutrient' | 'pastel';
 
 interface InfoCardProps extends ViewProps {
   title: string;
@@ -117,6 +118,28 @@ const INFO_CARD_VARIANTS: Record<
     },
     content: {
       marginTop: 10,
+    },
+  },
+  pastel: {
+    container: {
+      backgroundColor: colors.card,
+      borderWidth: 1,
+      borderColor: colors.primaryPastel,
+      shadowColor: colors.shadow,
+      shadowOpacity: 0.08,
+      shadowRadius: 16,
+      shadowOffset: { width: 0, height: 8 },
+      elevation: 6,
+      paddingVertical: 24,
+      paddingHorizontal: 24,
+    },
+    title: {
+      color: colors.pastelTitle,
+      ...typography.heading2,
+    },
+    content: {
+      marginTop: 12,
+      gap: spacing.lg,
     },
   },
 };
