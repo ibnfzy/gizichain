@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from "axios";
 
 export interface ApiUser {
   id: string | number;
@@ -33,10 +33,10 @@ export interface InferenceData {
 }
 
 const api = axios.create({
-  baseURL: 'https://api.gizichain.com',
+  baseURL: "https://olive.jultdev.site",
   timeout: 15000,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
@@ -48,30 +48,51 @@ export const setAuthToken = (token: string | null) => {
   }
 };
 
-export const loginRequest = async (payload: LoginPayload): Promise<AuthResponse> => {
-  const { data } = await api.post<AuthResponse>('/api/auth/login', payload);
+export const loginRequest = async (
+  payload: LoginPayload
+): Promise<AuthResponse> => {
+  const { data } = await api.post<AuthResponse>("/api/auth/login", payload);
   return data;
 };
 
-export const registerRequest = async (payload: RegisterPayload): Promise<AuthResponse> => {
-  const { data } = await api.post<AuthResponse>('/api/auth/register', payload);
+export const registerRequest = async (
+  payload: RegisterPayload
+): Promise<AuthResponse> => {
+  const { data } = await api.post<AuthResponse>("/api/auth/register", payload);
   return data;
 };
 
-export const fetchLatestInference = async (motherId: string | number): Promise<InferenceData> => {
-  const { data } = await api.get('/api/inference/latest', {
+export const fetchLatestInference = async (
+  motherId: string | number
+): Promise<InferenceData> => {
+  const { data } = await api.get("/api/inference/latest", {
     params: { mother_id: motherId },
   });
 
   return {
-    status: data?.status ?? 'unknown',
+    status: data?.status ?? "unknown",
     recommendation: data?.recommendation ?? data?.notes,
     energy:
-      Number(data?.requirements?.energy ?? data?.daily_requirements?.energy ?? data?.energy ?? 0) || 0,
+      Number(
+        data?.requirements?.energy ??
+          data?.daily_requirements?.energy ??
+          data?.energy ??
+          0
+      ) || 0,
     protein:
-      Number(data?.requirements?.protein ?? data?.daily_requirements?.protein ?? data?.protein ?? 0) || 0,
+      Number(
+        data?.requirements?.protein ??
+          data?.daily_requirements?.protein ??
+          data?.protein ??
+          0
+      ) || 0,
     fluid:
-      Number(data?.requirements?.fluid ?? data?.daily_requirements?.fluid ?? data?.fluid ?? 0) || 0,
+      Number(
+        data?.requirements?.fluid ??
+          data?.daily_requirements?.fluid ??
+          data?.fluid ??
+          0
+      ) || 0,
     updatedAt: data?.updated_at ?? data?.updatedAt,
   } as InferenceData;
 };
