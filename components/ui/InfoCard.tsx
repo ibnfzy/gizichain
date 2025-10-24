@@ -2,6 +2,7 @@ import { ReactNode, memo } from 'react';
 import { StyleProp, StyleSheet, Text, TextStyle, View, ViewProps, ViewStyle } from 'react-native';
 
 import colors from '@/styles/colors';
+import radius from '@/styles/radius';
 
 interface InfoCardProps extends ViewProps {
   title: string;
@@ -29,8 +30,8 @@ export const InfoCard = memo(InfoCardComponent);
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    borderRadius: 16,
-    backgroundColor: colors.surface,
+    borderRadius: radius.lg,
+    backgroundColor: colors.card,
     padding: 20,
     shadowColor: colors.shadow,
     shadowOpacity: 0.12,

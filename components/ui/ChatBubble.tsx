@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 
 import colors from '@/styles/colors';
+import radius from '@/styles/radius';
 
 export type ChatBubbleDirection = 'left' | 'right';
 
@@ -76,7 +77,7 @@ const styles = StyleSheet.create({
     maxWidth: '85%',
     paddingVertical: 10,
     paddingHorizontal: 14,
-    borderRadius: 18,
+    borderRadius: radius.lg,
     shadowColor: colors.shadow,
     shadowOpacity: 0.12,
     shadowRadius: 4,
@@ -84,7 +85,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   bubbleLeft: {
-    backgroundColor: colors.surface,
+    backgroundColor: colors.card,
     borderTopLeftRadius: 4,
   },
   bubbleRight: {
@@ -96,16 +97,16 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
   },
   messageRight: {
-    color: colors.textInverted,
+    color: colors.card,
   },
   timestamp: {
     marginTop: 6,
     fontSize: 11,
-    color: colors.muted,
+    color: colors.textMuted,
     textAlign: 'right',
   },
   timestampLeft: {
-    color: colors.muted,
+    color: colors.textMuted,
   },
   timestampRight: {
     color: 'rgba(255, 255, 255, 0.75)',

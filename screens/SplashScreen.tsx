@@ -38,14 +38,14 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.brandBackground,
+    backgroundColor: colors.background,
     paddingHorizontal: spacing.xxl,
   },
   iconWrapper: {
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 999,
-    backgroundColor: colors.brandGreenBackground,
+    backgroundColor: colors.primaryTint,
     padding: spacing.xxxxl,
   },
   icon: {
@@ -56,13 +56,13 @@ const styles = StyleSheet.create({
     marginTop: spacing.xxxl,
     fontSize: 30,
     fontWeight: '700',
-    color: colors.brandGreen,
+    color: colors.primary,
   },
   subtitle: {
     marginTop: spacing.sm,
     textAlign: 'center',
     fontSize: 16,
     lineHeight: 24,
-    color: colors.textSecondary,
+    color: colors.textMuted,
   },
 });
