@@ -1,38 +1,48 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  Animated,
+  Easing,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
 import { useRouter } from 'expo-router';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Feather } from '@expo/vector-icons';
 import { AppButton, InfoCard } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
 import { InferenceData, fetchLatestInference } from '@/services/api';
-import { colors, globalStyles, spacing } from '@/styles';
+import { colors, globalStyles, spacing, typography } from '@/styles';
 
 const STATUS_VARIANTS = StyleSheet.create({
   healthyContainer: {
-    borderColor: colors.primary,
-    backgroundColor: colors.primaryTint,
+    borderColor: colors.primaryPastel,
+    backgroundColor: colors.mintPastel,
   },
   healthyBadge: {
-    backgroundColor: colors.primaryTint,
+    backgroundColor: colors.primaryPastel,
     color: colors.primary,
   },
   healthyText: {
     color: colors.primary,
   },
   warningContainer: {
-    borderColor: colors.accent,
+    borderColor: colors.secondaryPastel,
     backgroundColor: colors.accentTint,
   },
   warningBadge: {
-    backgroundColor: colors.accentTint,
-    color: colors.accent,
+    backgroundColor: colors.secondaryPastel,
+    color: colors.secondary,
   },
   warningText: {
-    color: colors.accent,
+    color: colors.secondary,
   },
   criticalContainer: {
-    borderColor: colors.danger,
-    backgroundColor: colors.dangerTint,
+    borderColor: colors.dangerPastel,
+    backgroundColor: colors.dangerPastel,
   },
   criticalBadge: {
     backgroundColor: colors.dangerTint,
@@ -42,11 +52,11 @@ const STATUS_VARIANTS = StyleSheet.create({
     color: colors.danger,
   },
   unknownContainer: {
-    borderColor: colors.textMuted,
-    backgroundColor: 'rgba(125, 117, 149, 0.14)',
+    borderColor: colors.lavenderPastel,
+    backgroundColor: colors.lavenderPastel,
   },
   unknownBadge: {
-    backgroundColor: 'rgba(125, 117, 149, 0.2)',
+    backgroundColor: colors.primaryPastel,
     color: colors.textMuted,
   },
   unknownText: {
@@ -79,6 +89,7 @@ export function DashboardScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const inferenceAnimation = useRef(new Animated.Value(0)).current;
 
   const motherId = user?.id;
 
@@ -169,21 +180,55 @@ export function DashboardScreen() {
     [statusVariant.container],
   );
 
+  const animatedEntranceStyle = useMemo(
+    () => ({
+      opacity: inferenceAnimation,
+      transform: [
+        {
+          translateY: inferenceAnimation.interpolate({
+            inputRange: [0, 1],
+            outputRange: [16, 0],
+          }),
+        },
+      ],
+    }),
+    [inferenceAnimation],
+  );
+
+  useEffect(() => {
+    if (loading) {
+      inferenceAnimation.setValue(0);
+      return;
+    }
+
+    Animated.timing(inferenceAnimation, {
+      toValue: 1,
+      duration: 420,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: true,
+    }).start();
+  }, [inference?.updatedAt, loading, inferenceAnimation]);
+
   return (
     <ScrollView
       style={styles.container}
       contentContainerStyle={styles.contentContainer}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}
     >
-      <View style={styles.header}>
+      <LinearGradient
+        colors={[colors.secondaryPastel, colors.accentTint]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.headerGradient}
+      >
         <Text style={styles.greeting}>Halo,</Text>
         <Text style={styles.userName}>{user?.name ?? 'Ibu Hebat'}</Text>
         <Text style={styles.description}>
           Berikut adalah status gizi dan kebutuhan harian Anda hari ini.
         </Text>
-      </View>
+      </LinearGradient>
 
-      <View style={statusCardStyle}>
+      <Animated.View style={[statusCardStyle, animatedEntranceStyle]}>
         <Text style={statusVariant.badge}>{(inference?.status ?? 'Belum ada data').toUpperCase()}</Text>
         {inference?.recommendation ? (
           <Text style={statusVariant.text}>{inference.recommendation}</Text>
@@ -197,26 +242,63 @@ export function DashboardScreen() {
         {inference?.updatedAt ? (
           <Text style={styles.statusUpdatedAt}>Pembaruan terakhir: {inference.updatedAt}</Text>
         ) : null}
-      </View>
+      </Animated.View>
 
-      <InfoCard
-        title="Kebutuhan Harian"
-        style={styles.dailyNeedsCard}
-        contentContainerStyle={styles.dailyNeedsContent}
-      >
-        <View style={[styles.dailyNeedsRow, styles.energyRow]}>
-          <Text style={styles.dailyNeedsLabel}>Energi</Text>
-          <Text style={styles.energyValue}>{inference?.energy ?? 0} kkal</Text>
+      <Animated.View style={[styles.dailyNeedsSection, animatedEntranceStyle]}>
+        <Text style={styles.dailyNeedsHeading}>Kebutuhan Harian</Text>
+        <View style={styles.dailyNeedsList}>
+          <InfoCard
+            title="Energi"
+            variant="nutrient"
+            style={styles.nutrientCard}
+            contentContainerStyle={styles.nutrientContent}
+          >
+            <View style={styles.nutrientDetails}>
+              <View style={[styles.iconBubble, styles.energyIcon]}>
+                <Feather name="zap" size={20} color={colors.primary} />
+              </View>
+              <View>
+                <Text style={styles.nutrientValue}>{inference?.energy ?? 0}</Text>
+                <Text style={styles.nutrientUnit}>kkal</Text>
+              </View>
+            </View>
+          </InfoCard>
+
+          <InfoCard
+            title="Protein"
+            variant="nutrient"
+            style={styles.nutrientCard}
+            contentContainerStyle={styles.nutrientContent}
+          >
+            <View style={styles.nutrientDetails}>
+              <View style={[styles.iconBubble, styles.proteinIcon]}>
+                <Feather name="feather" size={20} color={colors.secondary} />
+              </View>
+              <View>
+                <Text style={styles.nutrientValue}>{inference?.protein ?? 0}</Text>
+                <Text style={styles.nutrientUnit}>gram</Text>
+              </View>
+            </View>
+          </InfoCard>
+
+          <InfoCard
+            title="Cairan"
+            variant="nutrient"
+            style={styles.nutrientCard}
+            contentContainerStyle={styles.nutrientContent}
+          >
+            <View style={styles.nutrientDetails}>
+              <View style={[styles.iconBubble, styles.fluidIcon]}>
+                <Feather name="droplet" size={20} color={colors.primary} />
+              </View>
+              <View>
+                <Text style={styles.nutrientValue}>{inference?.fluid ?? 0}</Text>
+                <Text style={styles.nutrientUnit}>ml</Text>
+              </View>
+            </View>
+          </InfoCard>
         </View>
-        <View style={[styles.dailyNeedsRow, styles.proteinRow]}>
-          <Text style={styles.dailyNeedsLabel}>Protein</Text>
-          <Text style={styles.proteinValue}>{inference?.protein ?? 0} g</Text>
-        </View>
-        <View style={[styles.dailyNeedsRow, styles.fluidRow]}>
-          <Text style={styles.dailyNeedsLabel}>Cairan</Text>
-          <Text style={styles.energyValue}>{inference?.fluid ?? 0} ml</Text>
-        </View>
-      </InfoCard>
+      </Animated.View>
 
       {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
@@ -235,26 +317,26 @@ const styles = StyleSheet.create({
   contentContainer: {
     paddingTop: spacing.xxxxl,
     paddingBottom: spacing.xxxxxxl,
-  },
-  header: {
-    marginBottom: spacing.xxl,
+    paddingHorizontal: spacing.lg,
   },
   greeting: {
-    fontSize: 20,
-    fontWeight: '500',
+    ...typography.subtitle,
     color: colors.textMuted,
   },
   userName: {
     marginTop: spacing.xs,
-    fontSize: 30,
-    fontWeight: '700',
+    ...typography.heading1,
     color: colors.primary,
   },
   description: {
     marginTop: spacing.sm,
-    fontSize: 16,
-    lineHeight: 24,
+    ...typography.body,
     color: colors.textMuted,
+  },
+  headerGradient: {
+    borderRadius: 28,
+    padding: spacing.xl,
+    marginBottom: spacing.xxl,
   },
   statusCard: {
     borderWidth: 1,
@@ -269,60 +351,70 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.xs,
-    fontSize: 14,
-    fontWeight: '600',
+    ...typography.overline,
+    fontSize: 13,
   },
   statusText: {
     marginTop: spacing.md,
-    fontSize: 16,
-    lineHeight: 24,
+    ...typography.body,
+    fontWeight: '600',
     color: colors.textPrimary,
   },
   statusUpdatedAt: {
     marginTop: spacing.sm,
-    fontSize: 12,
+    ...typography.caption,
     color: colors.textMuted,
   },
-  dailyNeedsCard: {
-    marginBottom: spacing.xl,
+  dailyNeedsSection: {
+    gap: spacing.lg,
+    marginBottom: spacing.xxl,
   },
-  dailyNeedsContent: {
-    gap: spacing.md,
+  dailyNeedsHeading: {
+    ...typography.heading2,
+    color: colors.textPrimary,
   },
-  dailyNeedsRow: {
+  dailyNeedsList: {
+    gap: spacing.lg,
+  },
+  nutrientCard: {
+    borderRadius: 24,
+  },
+  nutrientContent: {
+    paddingTop: 0,
+  },
+  nutrientDetails: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    borderRadius: 20,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
+    gap: spacing.md,
   },
-  dailyNeedsLabel: {
-    fontSize: 16,
+  nutrientValue: {
+    ...typography.heading2,
+    fontSize: 22,
+    color: colors.textPrimary,
+  },
+  nutrientUnit: {
+    ...typography.caption,
     color: colors.textMuted,
   },
-  energyRow: {
-    backgroundColor: colors.accentTint,
+  iconBubble: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  proteinRow: {
-    backgroundColor: colors.secondaryTint,
+  energyIcon: {
+    backgroundColor: colors.primaryPastel,
   },
-  fluidRow: {
-    backgroundColor: colors.primaryTint,
+  proteinIcon: {
+    backgroundColor: colors.secondaryPastel,
   },
-  energyValue: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: colors.primary,
-  },
-  proteinValue: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: colors.secondary,
+  fluidIcon: {
+    backgroundColor: colors.skyPastel,
   },
   errorText: {
     marginTop: spacing.xl,
-    fontSize: 14,
+    ...typography.caption,
     color: colors.danger,
   },
   signOutContainer: {

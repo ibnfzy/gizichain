@@ -3,8 +3,9 @@ import { StyleProp, StyleSheet, Text, TextStyle, View, ViewProps, ViewStyle } fr
 
 import colors from '@/styles/colors';
 import radius from '@/styles/radius';
+import typography from '@/styles/typography';
 
-export type InfoCardVariant = 'flat' | 'elevated' | 'info';
+export type InfoCardVariant = 'flat' | 'elevated' | 'info' | 'nutrient';
 
 interface InfoCardProps extends ViewProps {
   title: string;
@@ -43,9 +44,8 @@ const styles = StyleSheet.create({
   },
   title: {
     marginBottom: 12,
-    fontSize: 18,
-    fontWeight: '600',
     color: colors.textPrimary,
+    ...typography.subtitle,
   },
   content: {
     width: '100%',
@@ -97,6 +97,26 @@ const INFO_CARD_VARIANTS: Record<
       borderTopWidth: StyleSheet.hairlineWidth,
       borderColor: colors.primaryPastel,
       paddingTop: 12,
+    },
+  },
+  nutrient: {
+    container: {
+      backgroundColor: colors.lavenderPastel,
+      borderWidth: 1,
+      borderColor: colors.outlineMuted,
+      paddingVertical: 18,
+      paddingHorizontal: 20,
+      shadowOpacity: 0,
+      elevation: 0,
+    },
+    title: {
+      color: colors.textMuted,
+      ...typography.subtitle,
+      fontSize: 16,
+      fontWeight: '600',
+    },
+    content: {
+      marginTop: 10,
     },
   },
 };
