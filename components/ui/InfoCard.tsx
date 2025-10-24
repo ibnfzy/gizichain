@@ -4,11 +4,14 @@ import { StyleProp, StyleSheet, Text, TextStyle, View, ViewProps, ViewStyle } fr
 import colors from '@/styles/colors';
 import radius from '@/styles/radius';
 
+export type InfoCardVariant = 'flat' | 'elevated' | 'info';
+
 interface InfoCardProps extends ViewProps {
   title: string;
   children: ReactNode;
   contentContainerStyle?: StyleProp<ViewStyle>;
   titleStyle?: StyleProp<TextStyle>;
+  variant?: InfoCardVariant;
 }
 
 const InfoCardComponent = ({
@@ -17,13 +20,18 @@ const InfoCardComponent = ({
   style,
   contentContainerStyle,
   titleStyle,
+  variant = 'elevated',
   ...viewProps
-}: InfoCardProps) => (
-  <View style={[styles.container, style]} {...viewProps}>
-    <Text style={[styles.title, titleStyle]}>{title}</Text>
-    <View style={[styles.content, contentContainerStyle]}>{children}</View>
-  </View>
-);
+}: InfoCardProps) => {
+  const variantStyle = INFO_CARD_VARIANTS[variant];
+
+  return (
+    <View style={[styles.container, variantStyle.container, style]} {...viewProps}>
+      <Text style={[styles.title, variantStyle.title, titleStyle]}>{title}</Text>
+      <View style={[styles.content, variantStyle.content, contentContainerStyle]}>{children}</View>
+    </View>
+  );
+};
 
 export const InfoCard = memo(InfoCardComponent);
 
@@ -31,13 +39,7 @@ const styles = StyleSheet.create({
   container: {
     width: '100%',
     borderRadius: radius.lg,
-    backgroundColor: colors.card,
     padding: 20,
-    shadowColor: colors.shadow,
-    shadowOpacity: 0.12,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 3,
   },
   title: {
     marginBottom: 12,
@@ -49,3 +51,52 @@ const styles = StyleSheet.create({
     width: '100%',
   },
 });
+
+const INFO_CARD_VARIANTS: Record<
+  InfoCardVariant,
+  {
+    container: ViewStyle;
+    title?: TextStyle;
+    content?: ViewStyle;
+  }
+> = {
+  flat: {
+    container: {
+      backgroundColor: colors.card,
+      borderWidth: 1,
+      borderColor: colors.primaryPastel,
+      shadowOpacity: 0,
+      elevation: 0,
+    },
+  },
+  elevated: {
+    container: {
+      backgroundColor: colors.card,
+      shadowColor: colors.shadow,
+      shadowOpacity: 0.12,
+      shadowRadius: 8,
+      shadowOffset: { width: 0, height: 4 },
+      elevation: 3,
+    },
+  },
+  info: {
+    container: {
+      backgroundColor: colors.skyPastel,
+      borderLeftWidth: 4,
+      borderColor: colors.primary,
+      shadowColor: colors.shadow,
+      shadowOpacity: 0.08,
+      shadowRadius: 6,
+      shadowOffset: { width: 0, height: 3 },
+      elevation: 2,
+    },
+    title: {
+      color: colors.primary,
+    },
+    content: {
+      borderTopWidth: StyleSheet.hairlineWidth,
+      borderColor: colors.primaryPastel,
+      paddingTop: 12,
+    },
+  },
+};

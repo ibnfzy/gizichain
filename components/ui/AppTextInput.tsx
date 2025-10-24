@@ -1,4 +1,4 @@
-import { forwardRef } from 'react';
+import { forwardRef, useCallback, useMemo, useState } from 'react';
 import {
   StyleProp,
   StyleSheet,
@@ -20,21 +20,55 @@ interface AppTextInputProps extends TextInputProps {
 }
 
 export const AppTextInput = forwardRef<TextInput, AppTextInputProps>(
-  ({ errorMessage, style, containerStyle, errorTextStyle, ...props }, ref) => (
-    <View style={[styles.container, containerStyle]}>
-      <TextInput
-        ref={ref}
-        placeholderTextColor={colors.textMuted}
-        style={[styles.input, style]}
-        {...props}
-      />
-      {errorMessage ? (
-        <View style={styles.errorContainer}>
-          <Text style={[styles.errorText, errorTextStyle]}>{errorMessage}</Text>
-        </View>
-      ) : null}
-    </View>
-  ),
+  ({ errorMessage, style, containerStyle, errorTextStyle, onFocus, onBlur, ...props }, ref) => {
+    const [isFocused, setIsFocused] = useState(false);
+
+    const hasError = Boolean(errorMessage);
+
+    const handleFocus = useCallback<NonNullable<TextInputProps['onFocus']>>(
+      (event) => {
+        setIsFocused(true);
+        onFocus?.(event);
+      },
+      [onFocus],
+    );
+
+    const handleBlur = useCallback<NonNullable<TextInputProps['onBlur']>>(
+      (event) => {
+        setIsFocused(false);
+        onBlur?.(event);
+      },
+      [onBlur],
+    );
+
+    const dynamicInputStyle = useMemo(() => {
+      const borderColor = hasError
+        ? colors.danger
+        : isFocused
+          ? colors.primary
+          : colors.border;
+
+      return [{ borderColor }, style];
+    }, [hasError, isFocused, style]);
+
+    return (
+      <View style={[styles.container, containerStyle]}>
+        <TextInput
+          ref={ref}
+          placeholderTextColor={colors.textMuted}
+          style={[styles.input, ...dynamicInputStyle]}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          {...props}
+        />
+        {errorMessage ? (
+          <View style={styles.errorContainer}>
+            <Text style={[styles.errorText, errorTextStyle]}>{errorMessage}</Text>
+          </View>
+        ) : null}
+      </View>
+    );
+  },
 );
 
 AppTextInput.displayName = 'AppTextInput';
@@ -46,12 +80,13 @@ const styles = StyleSheet.create({
   input: {
     width: '100%',
     borderRadius: radius.lg,
-    borderWidth: 1,
+    borderWidth: StyleSheet.hairlineWidth * 1.5,
     borderColor: colors.border,
     backgroundColor: colors.card,
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingVertical: 10,
     fontSize: 16,
+    lineHeight: 22,
     color: colors.textPrimary,
     shadowColor: colors.shadow,
     shadowOpacity: 0.12,

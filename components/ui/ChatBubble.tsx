@@ -8,11 +8,13 @@ import {
   ViewProps,
   ViewStyle,
 } from 'react-native';
+import Animated, { FadeInUp } from 'react-native-reanimated';
 
 import colors from '@/styles/colors';
 import radius from '@/styles/radius';
 
 export type ChatBubbleDirection = 'left' | 'right';
+export type ChatBubbleVariant = 'ibu' | 'pakar' | 'system' | 'user';
 
 interface ChatBubbleProps extends ViewProps {
   message: string;
@@ -21,12 +23,18 @@ interface ChatBubbleProps extends ViewProps {
   bubbleStyle?: StyleProp<ViewStyle>;
   messageStyle?: StyleProp<TextStyle>;
   timestampStyle?: StyleProp<TextStyle>;
+  variant?: ChatBubbleVariant;
+  role?: ChatBubbleVariant;
+  animated?: boolean;
 }
 
 const ChatBubbleComponent = ({
   message,
   direction = 'left',
   timestamp,
+  variant,
+  role,
+  animated = true,
   style,
   bubbleStyle,
   messageStyle,
@@ -34,28 +42,45 @@ const ChatBubbleComponent = ({
   ...viewProps
 }: ChatBubbleProps) => {
   const isRight = direction === 'right';
+  const resolvedVariant = variant ?? role ?? (isRight ? 'user' : 'pakar');
+  const variantStyles = CHAT_BUBBLE_VARIANTS[resolvedVariant];
+
+  const animationProps = animated
+    ? { entering: FadeInUp.duration(220).springify().damping(18).stiffness(120) }
+    : {};
 
   return (
     <View
       style={[styles.container, isRight ? styles.alignRight : styles.alignLeft, style]}
       {...viewProps}
     >
-      <View
-        style={[styles.bubble, isRight ? styles.bubbleRight : styles.bubbleLeft, bubbleStyle]}
+      <Animated.View
+        {...animationProps}
+        style={[
+          styles.bubble,
+          isRight ? styles.bubbleRight : styles.bubbleLeft,
+          variantStyles.bubble,
+          bubbleStyle,
+        ]}
       >
-        <Text style={[styles.message, isRight && styles.messageRight, messageStyle]}>{message}</Text>
+        <Text
+          style={[styles.message, isRight && styles.messageRight, variantStyles.message, messageStyle]}
+        >
+          {message}
+        </Text>
         {timestamp ? (
           <Text
             style={[
               styles.timestamp,
               isRight ? styles.timestampRight : styles.timestampLeft,
+              variantStyles.timestamp,
               timestampStyle,
             ]}
           >
             {timestamp}
           </Text>
         ) : null}
-      </View>
+      </Animated.View>
     </View>
   );
 };
@@ -85,11 +110,9 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   bubbleLeft: {
-    backgroundColor: colors.card,
     borderTopLeftRadius: 4,
   },
   bubbleRight: {
-    backgroundColor: colors.primary,
     borderTopRightRadius: 4,
   },
   message: {
@@ -105,10 +128,66 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     textAlign: 'right',
   },
-  timestampLeft: {
-    color: colors.textMuted,
-  },
-  timestampRight: {
-    color: 'rgba(255, 255, 255, 0.75)',
-  },
+  timestampLeft: {},
+  timestampRight: {},
 });
+
+const CHAT_BUBBLE_VARIANTS: Record<
+  ChatBubbleVariant,
+  {
+    bubble: ViewStyle;
+    message: TextStyle;
+    timestamp: TextStyle;
+  }
+> = {
+  ibu: {
+    bubble: {
+      backgroundColor: colors.bubbleIbu,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: colors.secondaryPastel,
+    },
+    message: {
+      color: colors.textPrimary,
+    },
+    timestamp: {
+      color: '#a06b8a',
+    },
+  },
+  pakar: {
+    bubble: {
+      backgroundColor: colors.bubblePakar,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: colors.lavenderPastel,
+    },
+    message: {
+      color: colors.textPrimary,
+    },
+    timestamp: {
+      color: colors.textMuted,
+    },
+  },
+  system: {
+    bubble: {
+      backgroundColor: colors.bubbleSystem,
+      borderLeftWidth: 3,
+      borderColor: colors.primary,
+    },
+    message: {
+      color: colors.textPrimary,
+    },
+    timestamp: {
+      color: colors.textMuted,
+    },
+  },
+  user: {
+    bubble: {
+      backgroundColor: colors.bubbleUser,
+    },
+    message: {
+      color: colors.textInverted,
+    },
+    timestamp: {
+      color: 'rgba(255, 255, 255, 0.82)',
+    },
+  },
+};
