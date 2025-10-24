@@ -33,6 +33,7 @@ const colors = {
   bubblePakar: '#f1f0ff',
   bubbleSystem: '#edf6ff',
   bubbleUser: '#8b93ff',
+  bubbleMentor: '#ffeede',
 };
 
 export default colors;

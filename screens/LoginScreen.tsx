@@ -24,7 +24,7 @@ export function LoginScreen() {
 
     try {
       await login({ email, password });
-      router.replace('/dashboard');
+      router.replace('/(tabs)/dashboard');
     } catch (err: unknown) {
       setError('Tidak dapat masuk. Periksa kembali kredensial Anda.');
       console.warn('Login error', err);

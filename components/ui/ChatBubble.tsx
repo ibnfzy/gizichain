@@ -14,7 +14,7 @@ import colors from '@/styles/colors';
 import radius from '@/styles/radius';
 
 export type ChatBubbleDirection = 'left' | 'right';
-export type ChatBubbleVariant = 'ibu' | 'pakar' | 'system' | 'user';
+export type ChatBubbleVariant = 'ibu' | 'pakar' | 'system' | 'user' | 'mentor';
 
 interface ChatBubbleProps extends ViewProps {
   message: string;
@@ -188,6 +188,19 @@ const CHAT_BUBBLE_VARIANTS: Record<
     },
     timestamp: {
       color: 'rgba(255, 255, 255, 0.82)',
+    },
+  },
+  mentor: {
+    bubble: {
+      backgroundColor: colors.bubbleMentor,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: colors.accent,
+    },
+    message: {
+      color: colors.textPrimary,
+    },
+    timestamp: {
+      color: '#b57b52',
     },
   },
 };
