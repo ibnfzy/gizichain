@@ -1,6 +1,8 @@
 import api from "./api";
 
-export type AttendanceStatus = "present" | "absent" | "excused" | "pending";
+export type AttendanceStatus = "confirmed" | "declined";
+
+export type AttendancePayload = AttendanceStatus;
 
 export interface Schedule {
   id: string | number;
@@ -8,12 +10,6 @@ export interface Schedule {
   description?: string;
   scheduledAt?: string;
   attendance?: AttendanceStatus | null;
-  [key: string]: unknown;
-}
-
-export interface AttendancePayload {
-  status: AttendanceStatus;
-  notes?: string;
   [key: string]: unknown;
 }
 
@@ -31,9 +27,9 @@ export const setAttendance = async (
   scheduleId: string | number,
   attendance: AttendancePayload
 ): Promise<Schedule> => {
-  const { data } = await api.post<Schedule>(
+  const { data } = await api.put<Schedule>(
     `/api/schedules/${scheduleId}/attendance`,
-    attendance
+    { attendance }
   );
 
   return data;
