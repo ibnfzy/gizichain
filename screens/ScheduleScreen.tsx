@@ -11,7 +11,7 @@ import {
 import { useFocusEffect } from '@react-navigation/native';
 
 import { useAuth } from '@/hooks/useAuth';
-import { AttendancePayload, AttendanceStatus, Schedule, getSchedules, setAttendance } from '@/services/schedule';
+import { AttendanceStatus, Schedule, getSchedules, setAttendance } from '@/services/schedule';
 import { colors, globalStyles, spacing, typography } from '@/styles';
 
 type FullSchedule = Schedule & {
@@ -65,8 +65,21 @@ const formatScheduleDate = (value?: string) => {
 const shouldShowActions = (schedule: FullSchedule) => {
   return (
     (schedule.status === 'scheduled' || schedule.status === 'Scheduled') &&
-    (schedule.attendance === 'pending' || !schedule.attendance)
+    !schedule.attendance
   );
+};
+
+const ATTENDANCE_LABELS: Record<AttendanceStatus, string> = {
+  confirmed: 'Dikonfirmasi Hadir',
+  declined: 'Tidak Dapat Hadir',
+};
+
+const formatAttendance = (attendance?: AttendanceStatus | null) => {
+  if (!attendance) {
+    return 'Belum ditandai';
+  }
+
+  return ATTENDANCE_LABELS[attendance] ?? attendance;
 };
 
 export function ScheduleScreen() {
@@ -125,14 +138,22 @@ export function ScheduleScreen() {
   }, [fetchSchedules, motherId]);
 
   const handleAttendance = useCallback(
-    async (scheduleId: string | number, payload: AttendancePayload) => {
+    async (scheduleId: string | number, attendance: AttendanceStatus) => {
       setUpdatingId(scheduleId);
       setError(null);
 
       try {
-        const updated = await setAttendance(scheduleId, payload);
+        const updated = await setAttendance(scheduleId, attendance);
         setSchedules((previous) =>
-          previous.map((item) => (item.id === updated.id ? ({ ...item, ...updated } as FullSchedule) : item)),
+          previous.map((item) =>
+            item.id === updated.id
+              ? ({
+                  ...item,
+                  ...updated,
+                  attendance: (updated.attendance as AttendanceStatus | null | undefined) ?? attendance,
+                } as FullSchedule)
+              : item,
+          ),
         );
       } catch (err: unknown) {
         console.warn('Failed to update attendance', err);
@@ -183,9 +204,7 @@ export function ScheduleScreen() {
               </View>
               <View style={styles.metaRow}>
                 <Text style={styles.metaLabel}>Kehadiran:</Text>
-                <Text style={styles.metaValue}>
-                  {schedule.attendance ? String(schedule.attendance) : 'Belum ditandai'}
-                </Text>
+                <Text style={styles.metaValue}>{formatAttendance(schedule.attendance)}</Text>
               </View>
 
               {shouldShowActions(schedule) ? (
@@ -193,7 +212,7 @@ export function ScheduleScreen() {
                   <Pressable
                     accessibilityRole="button"
                     style={[styles.actionButton, styles.presentButton]}
-                    onPress={() => handleAttendance(schedule.id, { status: 'present' })}
+                    onPress={() => handleAttendance(schedule.id, 'confirmed')}
                     disabled={updatingId === schedule.id}
                   >
                     {updatingId === schedule.id ? (
@@ -205,7 +224,7 @@ export function ScheduleScreen() {
                   <Pressable
                     accessibilityRole="button"
                     style={[styles.actionButton, styles.absentButton]}
-                    onPress={() => handleAttendance(schedule.id, { status: 'absent' })}
+                    onPress={() => handleAttendance(schedule.id, 'declined')}
                     disabled={updatingId === schedule.id}
                   >
                     {updatingId === schedule.id ? (
