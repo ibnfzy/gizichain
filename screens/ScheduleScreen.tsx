@@ -238,11 +238,14 @@ export function ScheduleScreen() {
 
               {evaluation ? (
                 <View style={styles.evaluationCard}>
-                  <Text style={styles.evaluationTitle}>Catatan Evaluasi</Text>
+                  <Text style={styles.evaluationTitle}>Ringkasan Evaluasi</Text>
                   {Object.entries(evaluation).map(([key, value]) => (
                     <View key={key} style={styles.evaluationRow}>
-                      <Text style={styles.evaluationKey}>{key}</Text>
-                      <Text style={styles.evaluationValue}>{String(value)}</Text>
+                      <Text style={styles.evaluationBullet}>•</Text>
+                      <View style={styles.evaluationContent}>
+                        <Text style={styles.evaluationKey}>{key}</Text>
+                        <Text style={styles.evaluationValue}>{String(value)}</Text>
+                      </View>
                     </View>
                   ))}
                 </View>
@@ -369,16 +372,28 @@ const styles = StyleSheet.create({
   evaluationCard: {
     borderWidth: 1,
     borderColor: colors.outlineMuted,
-    backgroundColor: colors.lavenderPastel,
+    backgroundColor: colors.card,
     borderRadius: spacing.lg,
     padding: spacing.md,
     gap: spacing.sm,
   },
   evaluationTitle: {
     ...typography.subtitle,
-    color: colors.pastelTitle,
+    color: colors.textPrimary,
+    fontWeight: '700',
   },
   evaluationRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: spacing.sm,
+  },
+  evaluationBullet: {
+    ...typography.body,
+    color: colors.textMuted,
+    lineHeight: 22,
+  },
+  evaluationContent: {
+    flex: 1,
     gap: spacing.xs,
   },
   evaluationKey: {
