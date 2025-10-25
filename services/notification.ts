@@ -12,8 +12,8 @@ export interface Notification {
 export const getUnread = async (
   motherId: string | number
 ): Promise<Notification[]> => {
-  const { data } = await api.get<Notification[]>("/api/notifications/unread", {
-    params: { mother_id: motherId },
+  const { data } = await api.get<Notification[]>("/api/notifications", {
+    params: { mother_id: motherId, unread: 1 },
   });
 
   return data;
@@ -22,7 +22,7 @@ export const getUnread = async (
 export const markRead = async (
   notificationId: string | number
 ): Promise<Notification> => {
-  const { data } = await api.post<Notification>(
+  const { data } = await api.put<Notification>(
     `/api/notifications/${notificationId}/read`
   );
 
