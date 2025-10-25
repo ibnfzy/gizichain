@@ -14,6 +14,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
 import { AppButton, InfoCard } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
+import { useNotifications } from '@/hooks/useNotifications';
 import { InferenceData, fetchLatestInference } from '@/services/api';
 import { colors, globalStyles, spacing, typography } from '@/styles';
 
@@ -85,6 +86,7 @@ const normalizeStatus = (status?: string) => {
 export function DashboardScreen() {
   const router = useRouter();
   const { user, logout, isLoading: authLoading } = useAuth();
+  const { scheduleReminders, markAsRead } = useNotifications();
   const [inference, setInference] = useState<InferenceData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -92,6 +94,8 @@ export function DashboardScreen() {
   const inferenceAnimation = useRef(new Animated.Value(0)).current;
 
   const motherId = user?.id;
+  const latestScheduleReminder = scheduleReminders[0];
+  const additionalScheduleReminderCount = Math.max(scheduleReminders.length - 1, 0);
 
   const statusVariant = useMemo<{
     container: ViewStyle;
@@ -209,6 +213,16 @@ export function DashboardScreen() {
     }).start();
   }, [inference?.updatedAt, loading, inferenceAnimation]);
 
+  const handleOpenSchedule = useCallback(() => {
+    router.push('/(tabs)/schedule');
+
+    if (scheduleReminders.length > 0) {
+      Promise.all(scheduleReminders.map((reminder) => markAsRead(reminder.id))).catch((err) =>
+        console.warn('Failed to mark schedule reminders as read', err),
+      );
+    }
+  }, [markAsRead, router, scheduleReminders]);
+
   return (
     <ScrollView
       style={styles.container}
@@ -227,6 +241,31 @@ export function DashboardScreen() {
           Berikut adalah status gizi dan kebutuhan harian Anda hari ini.
         </Text>
       </LinearGradient>
+
+      {latestScheduleReminder ? (
+        <Animated.View style={[styles.reminderBanner, animatedEntranceStyle]}>
+          <View style={styles.reminderTextContainer}>
+            <Text style={styles.reminderTitle}>
+              {String(latestScheduleReminder.title ?? 'Pengingat Jadwal')}
+            </Text>
+            {latestScheduleReminder.message ? (
+              <Text style={styles.reminderMessage}>
+                {String(latestScheduleReminder.message)}
+              </Text>
+            ) : null}
+            {additionalScheduleReminderCount > 0 ? (
+              <Text style={styles.reminderMeta}>
+                +{additionalScheduleReminderCount} pengingat jadwal lainnya belum dibaca
+              </Text>
+            ) : null}
+          </View>
+          <AppButton
+            label="Lihat Jadwal"
+            onPress={handleOpenSchedule}
+            style={styles.reminderButton}
+          />
+        </Animated.View>
+      ) : null}
 
       <Animated.View style={[statusCardStyle, animatedEntranceStyle]}>
         <Text style={statusVariant.badge}>{(inference?.status ?? 'Belum ada data').toUpperCase()}</Text>
@@ -337,6 +376,43 @@ const styles = StyleSheet.create({
     borderRadius: 28,
     padding: spacing.xl,
     marginBottom: spacing.xxl,
+  },
+  reminderBanner: {
+    backgroundColor: colors.primaryPastel,
+    borderRadius: 24,
+    padding: spacing.xl,
+    marginBottom: spacing.xl,
+    flexDirection: 'column',
+    gap: spacing.md,
+    shadowColor: colors.shadow,
+    shadowOpacity: 0.16,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 6,
+  },
+  reminderTextContainer: {
+    gap: spacing.xs,
+  },
+  reminderTitle: {
+    ...typography.subtitle,
+    color: colors.primary,
+  },
+  reminderMessage: {
+    ...typography.body,
+    color: colors.textPrimary,
+    lineHeight: 22,
+  },
+  reminderMeta: {
+    ...typography.caption,
+    color: colors.textMuted,
+  },
+  reminderButton: {
+    width: undefined,
+    alignSelf: 'flex-start',
+    paddingHorizontal: spacing.lg,
+    shadowOpacity: 0.18,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
   },
   statusCard: {
     borderWidth: 1,

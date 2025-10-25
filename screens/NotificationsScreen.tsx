@@ -1,46 +1,33 @@
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useMemo } from 'react';
+import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { AppButton, InfoCard } from '@/components/ui';
+import { useNotifications } from '@/hooks/useNotifications';
+import { Notification } from '@/services/notification';
 import { colors, globalStyles, spacing, typography } from '@/styles';
 
-type NotificationType = 'reminder' | 'warning' | 'insight';
+const resolveNotificationType = (notification: Notification): string => {
+  const rawType =
+    (notification as Record<string, unknown>).type ??
+    (notification as Record<string, unknown>).notification_type ??
+    (notification as Record<string, unknown>).category ??
+    (notification as Record<string, unknown>).kind ??
+    (typeof (notification as Record<string, unknown>).data === 'object' &&
+    (notification as Record<string, unknown>).data !== null
+      ? (notification as { data?: { type?: string } }).data?.type
+      : undefined);
 
-type NotificationItem = {
-  id: string;
-  title: string;
-  message: string;
-  time: string;
-  type: NotificationType;
+  return typeof rawType === 'string' ? rawType.toLowerCase().replace(/_/g, '-') : 'reminder';
 };
 
-const NOTIFICATIONS: NotificationItem[] = [
-  {
-    id: '1',
-    title: 'Waktunya timbang berat badan',
-    message: 'Jangan lupa catat berat badan hari ini agar tren tetap terpantau.',
-    time: 'Hari ini · 07.00',
-    type: 'reminder',
+const NOTIFICATION_STYLES: Record<string, { accent: string; background: string }> = {
+  'schedule-reminder': {
+    accent: colors.secondary,
+    background: colors.secondaryPastel,
   },
-  {
-    id: '2',
-    title: 'Asupan zat besi menurun',
-    message: 'Tambahkan sumber zat besi seperti daging merah atau kacang panjang minggu ini.',
-    time: 'Kemarin · 19.45',
-    type: 'warning',
-  },
-  {
-    id: '3',
-    title: 'Rekomendasi menu baru',
-    message: 'Coba resep sup bayam jagung untuk makan siang besok.',
-    time: 'Kemarin · 09.12',
-    type: 'insight',
-  },
-];
-
-const TYPE_STYLES: Record<NotificationType, { accent: string; background: string }> = {
-  reminder: {
-    accent: colors.primary,
-    background: colors.primaryPastel,
+  schedule: {
+    accent: colors.secondary,
+    background: colors.secondaryPastel,
   },
   warning: {
     accent: colors.danger,
@@ -48,46 +35,164 @@ const TYPE_STYLES: Record<NotificationType, { accent: string; background: string
   },
   insight: {
     accent: colors.secondary,
-    background: colors.secondaryPastel,
+    background: colors.accentTint,
+  },
+  reminder: {
+    accent: colors.primary,
+    background: colors.primaryPastel,
+  },
+  general: {
+    accent: colors.primary,
+    background: colors.primaryPastel,
   },
 };
 
+const formatNotificationTime = (value?: string) => {
+  if (!value) {
+    return '';
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  return new Intl.DateTimeFormat('id-ID', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  }).format(date);
+};
+
 export function NotificationsScreen() {
+  const { notifications, loading, refreshing, error, refresh, markAsRead, countsByType } =
+    useNotifications();
+
+  const totalUnread = notifications.length;
+  const scheduleReminderCount = countsByType['schedule-reminder'] ?? 0;
+
+  const summaryDescription = useMemo(() => {
+    if (loading && totalUnread === 0) {
+      return 'Memuat notifikasi terbaru...';
+    }
+
+    if (totalUnread === 0) {
+      return 'Tidak ada notifikasi baru. Anda sudah membaca semuanya.';
+    }
+
+    const parts: string[] = [];
+
+    if (scheduleReminderCount > 0) {
+      parts.push(`${scheduleReminderCount} pengingat jadwal`);
+    }
+
+    const otherUnread = totalUnread - scheduleReminderCount;
+
+    if (otherUnread > 0) {
+      parts.push(`${otherUnread} notifikasi lainnya`);
+    }
+
+    const joined = parts.join(' dan ');
+
+    return `Anda memiliki ${joined || `${totalUnread} notifikasi`} belum dibaca.`;
+  }, [loading, scheduleReminderCount, totalUnread]);
+
+  const handleRefresh = useCallback(() => {
+    void refresh();
+  }, [refresh]);
+
+  const handleMarkAllRead = useCallback(() => {
+    if (notifications.length === 0) {
+      return;
+    }
+
+    void Promise.all(notifications.map((notification) => markAsRead(notification)));
+  }, [markAsRead, notifications]);
+
+  const handleMarkSingle = useCallback(
+    (notificationId: string | number) => {
+      void markAsRead(notificationId);
+    },
+    [markAsRead],
+  );
+
   return (
     <View style={globalStyles.screen}>
       <ScrollView
         contentContainerStyle={styles.contentContainer}
         showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}
       >
         <Text style={styles.title}>Notifikasi</Text>
         <Text style={styles.subtitle}>
-          Sorotan notifikasi dibedakan dengan aksen warna lembut agar mudah dibaca dan dipilah.
+          Notifikasi terbaru ditampilkan secara otomatis dan dibedakan berdasarkan kategorinya.
         </Text>
 
         <InfoCard title="Ringkasan hari ini" variant="info" style={styles.summaryCard}>
-          <Text style={styles.summaryText}>Anda memiliki 1 tugas penting dan 2 rekomendasi terbaru.</Text>
+          <Text style={styles.summaryText}>{summaryDescription}</Text>
         </InfoCard>
 
+        {error ? <Text style={styles.errorText}>{error}</Text> : null}
+
         <View style={styles.listContainer}>
-          {NOTIFICATIONS.map((item) => {
-            const style = TYPE_STYLES[item.type];
+          {loading && totalUnread === 0 ? (
+            <View style={styles.emptyState}>
+              <Text style={styles.emptyTitle}>Memuat notifikasi...</Text>
+              <Text style={styles.emptySubtitle}>
+                Mohon tunggu sesaat, kami sedang menyiapkan daftar terbaru.
+              </Text>
+            </View>
+          ) : null}
+
+          {!loading && totalUnread === 0 ? (
+            <View style={styles.emptyState}>
+              <Text style={styles.emptyTitle}>Tidak ada notifikasi baru</Text>
+              <Text style={styles.emptySubtitle}>
+                Semua notifikasi sudah dibaca. Tarik ke bawah untuk memeriksa pembaruan terbaru.
+              </Text>
+            </View>
+          ) : null}
+
+          {notifications.map((notification) => {
+            const type = resolveNotificationType(notification);
+            const style = NOTIFICATION_STYLES[type] ?? NOTIFICATION_STYLES.general;
+            const timestamp = formatNotificationTime(notification.created_at);
+
             return (
               <View
-                key={item.id}
+                key={notification.id}
                 style={[styles.notificationCard, { backgroundColor: style.background }]}
               >
                 <View style={[styles.accentBar, { backgroundColor: style.accent }]} />
                 <View style={styles.notificationContent}>
-                  <Text style={styles.notificationTitle}>{item.title}</Text>
-                  <Text style={styles.notificationMessage}>{item.message}</Text>
-                  <Text style={styles.notificationTime}>{item.time}</Text>
+                  <Text style={styles.notificationTitle}>
+                    {String(notification.title ?? 'Notifikasi')}
+                  </Text>
+                  {notification.message ? (
+                    <Text style={styles.notificationMessage}>
+                      {String(notification.message)}
+                    </Text>
+                  ) : null}
+                  {timestamp ? <Text style={styles.notificationTime}>{timestamp}</Text> : null}
+                  <Pressable
+                    accessibilityRole="button"
+                    onPress={() => handleMarkSingle(notification.id)}
+                    style={styles.markReadButton}
+                  >
+                    <Text style={styles.markReadText}>Tandai sudah dibaca</Text>
+                  </Pressable>
                 </View>
               </View>
             );
           })}
         </View>
 
-        <AppButton label="Tandai semua sudah dibaca" variant="outline" />
+        <AppButton
+          label="Tandai semua sudah dibaca"
+          variant="outline"
+          onPress={handleMarkAllRead}
+          disabled={notifications.length === 0}
+        />
       </ScrollView>
     </View>
   );
@@ -115,8 +220,28 @@ const styles = StyleSheet.create({
     ...typography.body,
     color: colors.textPrimary,
   },
+  errorText: {
+    ...typography.body,
+    color: colors.danger,
+  },
   listContainer: {
     gap: spacing.md,
+  },
+  emptyState: {
+    borderRadius: spacing.lg,
+    padding: spacing.xl,
+    backgroundColor: colors.card,
+    alignItems: 'flex-start',
+    gap: spacing.sm,
+  },
+  emptyTitle: {
+    ...typography.subtitle,
+    color: colors.textPrimary,
+  },
+  emptySubtitle: {
+    ...typography.body,
+    color: colors.textMuted,
+    lineHeight: 22,
   },
   notificationCard: {
     flexDirection: 'row',
@@ -149,5 +274,18 @@ const styles = StyleSheet.create({
   notificationTime: {
     ...typography.caption,
     color: colors.textMuted,
+  },
+  markReadButton: {
+    alignSelf: 'flex-start',
+    marginTop: spacing.sm,
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.sm,
+    borderRadius: spacing.sm,
+    backgroundColor: colors.card,
+  },
+  markReadText: {
+    ...typography.caption,
+    fontWeight: '600',
+    color: colors.primary,
   },
 });
