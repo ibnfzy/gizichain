@@ -32,6 +32,15 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
+        name="schedule"
+        options={{
+          title: 'Jadwal',
+          tabBarIcon: ({ color, size }) => <Feather name="clock" size={size ?? 22} color={color} />,
+          tabBarItemStyle: styles.scheduleItem,
+          tabBarLabelStyle: styles.scheduleLabel,
+        }}
+      />
+      <Tabs.Screen
         name="chat"
         options={{
           title: 'Chat',
@@ -67,6 +76,16 @@ const styles = StyleSheet.create({
   },
   tabLabel: {
     fontSize: 12,
+    fontWeight: '600',
+  },
+  scheduleItem: {
+    backgroundColor: colors.primaryPastel,
+    borderRadius: spacing.lg,
+    marginHorizontal: spacing.xs,
+    paddingVertical: spacing.xs,
+  },
+  scheduleLabel: {
+    fontSize: 16,
     fontWeight: '600',
   },
 });
