@@ -3,9 +3,14 @@ import { Feather } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 
 import { HapticTab } from '@/components/haptic-tab';
+import { useNotifications } from '@/hooks/useNotifications';
 import { colors, spacing } from '@/styles';
 
 export default function TabsLayout() {
+  const { countsByType } = useNotifications();
+  const scheduleBadgeCount =
+    (countsByType['schedule-reminder'] ?? 0) + (countsByType['schedule'] ?? 0);
+
   return (
     <Tabs
       screenOptions={{
@@ -38,6 +43,8 @@ export default function TabsLayout() {
           tabBarIcon: ({ color, size }) => <Feather name="clock" size={size ?? 22} color={color} />,
           tabBarItemStyle: styles.scheduleItem,
           tabBarLabelStyle: styles.scheduleLabel,
+          tabBarBadge: scheduleBadgeCount > 0 ? scheduleBadgeCount : undefined,
+          tabBarBadgeStyle: styles.scheduleBadge,
         }}
       />
       <Tabs.Screen
@@ -87,5 +94,12 @@ const styles = StyleSheet.create({
   scheduleLabel: {
     fontSize: 16,
     fontWeight: '600',
+  },
+  scheduleBadge: {
+    backgroundColor: colors.danger,
+    color: colors.textInverted,
+    fontSize: 11,
+    minWidth: 18,
+    textAlign: 'center',
   },
 });
