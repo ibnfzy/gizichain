@@ -7,6 +7,8 @@ import {
   StyleSheet,
   Text,
   View,
+  type TextStyle,
+  type ViewStyle,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 
@@ -282,26 +284,26 @@ const styles = StyleSheet.create({
     paddingTop: spacing.xl,
     paddingBottom: spacing.xxxl,
     gap: spacing.lg,
-  },
+  } as ViewStyle,
   title: {
     ...typography.heading2,
     color: colors.textPrimary,
-  },
+  } as TextStyle,
   subtitle: {
     ...typography.body,
     color: colors.textMuted,
     lineHeight: 24,
-  },
+  } as TextStyle,
   errorText: {
     ...typography.body,
     color: colors.danger,
     backgroundColor: colors.dangerPastel,
     borderRadius: spacing.md,
     padding: spacing.md,
-  },
+  } as TextStyle,
   listContainer: {
     gap: spacing.lg,
-  },
+  } as ViewStyle,
   scheduleCard: {
     backgroundColor: colors.card,
     borderRadius: spacing.xl,
@@ -312,40 +314,40 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 6 },
     elevation: 6,
-  },
+  } as ViewStyle,
   cardHeader: {
     gap: spacing.xs,
-  },
+  } as ViewStyle,
   scheduleTitle: {
     ...typography.subtitle,
     color: colors.textPrimary,
-  },
+  } as TextStyle,
   scheduleTime: {
     ...typography.body,
     color: colors.textMuted,
-  },
+  } as TextStyle,
   scheduleDescription: {
     ...typography.body,
     color: colors.textPrimary,
     lineHeight: 24,
-  },
+  } as TextStyle,
   metaRow: {
     flexDirection: 'row',
     gap: spacing.xs,
-  },
+  } as ViewStyle,
   metaLabel: {
     ...typography.body,
     color: colors.textMuted,
     fontWeight: '600',
-  },
+  } as TextStyle,
   metaValue: {
     ...typography.body,
     color: colors.textPrimary,
-  },
+  } as TextStyle,
   actionsRow: {
     flexDirection: 'row',
     gap: spacing.md,
-  },
+  } as ViewStyle,
   actionButton: {
     flex: 1,
     borderRadius: spacing.lg,
@@ -357,18 +359,18 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 4 },
     elevation: 5,
-  },
+  } as ViewStyle,
   presentButton: {
     backgroundColor: '#10B981',
-  },
+  } as ViewStyle,
   absentButton: {
     backgroundColor: '#EF4444',
-  },
+  } as ViewStyle,
   actionButtonLabel: {
     color: colors.card,
     fontSize: 16,
     fontWeight: '700',
-  },
+  } as TextStyle,
   evaluationCard: {
     borderWidth: 1,
     borderColor: colors.outlineMuted,
@@ -376,52 +378,52 @@ const styles = StyleSheet.create({
     borderRadius: spacing.lg,
     padding: spacing.md,
     gap: spacing.sm,
-  },
+  } as ViewStyle,
   evaluationTitle: {
     ...typography.subtitle,
     color: colors.textPrimary,
     fontWeight: '700',
-  },
+  } as TextStyle,
   evaluationRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: spacing.sm,
-  },
+  } as ViewStyle,
   evaluationBullet: {
     ...typography.body,
     color: colors.textMuted,
     lineHeight: 22,
-  },
+  } as TextStyle,
   evaluationContent: {
     flex: 1,
     gap: spacing.xs,
-  },
+  } as ViewStyle,
   evaluationKey: {
     ...typography.body,
     color: colors.textMuted,
     fontWeight: '600',
     textTransform: 'capitalize',
-  },
+  } as TextStyle,
   evaluationValue: {
     ...typography.body,
     color: colors.textPrimary,
     lineHeight: 22,
-  },
+  } as TextStyle,
   loadingContainer: {
     alignItems: 'center',
     gap: spacing.md,
     paddingVertical: spacing.xl,
-  },
+  } as ViewStyle,
   loadingText: {
     ...typography.body,
     color: colors.textMuted,
-  },
+  } as TextStyle,
   emptyState: {
     ...typography.body,
     color: colors.textMuted,
     textAlign: 'center',
     paddingVertical: spacing.xl,
-  },
+  } as TextStyle,
 });
 
 export default ScheduleScreen;

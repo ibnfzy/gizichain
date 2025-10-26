@@ -24,7 +24,7 @@ interface ChatBubbleProps extends ViewProps {
   messageStyle?: StyleProp<TextStyle>;
   timestampStyle?: StyleProp<TextStyle>;
   variant?: ChatBubbleVariant;
-  role?: ChatBubbleVariant;
+  bubbleRole?: ChatBubbleVariant;
   animated?: boolean;
 }
 
@@ -33,7 +33,7 @@ const ChatBubbleComponent = ({
   direction = 'left',
   timestamp,
   variant,
-  role,
+  bubbleRole,
   animated = true,
   style,
   bubbleStyle,
@@ -42,7 +42,7 @@ const ChatBubbleComponent = ({
   ...viewProps
 }: ChatBubbleProps) => {
   const isRight = direction === 'right';
-  const resolvedVariant = variant ?? role ?? (isRight ? 'user' : 'pakar');
+  const resolvedVariant = variant ?? bubbleRole ?? (isRight ? 'user' : 'pakar');
   const variantStyles = CHAT_BUBBLE_VARIANTS[resolvedVariant];
 
   const animationProps = animated
@@ -91,13 +91,13 @@ const styles = StyleSheet.create({
   container: {
     width: '100%',
     marginVertical: 4,
-  },
+  } as ViewStyle,
   alignLeft: {
     alignItems: 'flex-start',
-  },
+  } as ViewStyle,
   alignRight: {
     alignItems: 'flex-end',
-  },
+  } as ViewStyle,
   bubble: {
     maxWidth: '85%',
     paddingVertical: 10,
@@ -108,28 +108,28 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 2 },
     elevation: 2,
-  },
+  } as ViewStyle,
   bubbleLeft: {
     borderTopLeftRadius: 4,
-  },
+  } as ViewStyle,
   bubbleRight: {
     borderTopRightRadius: 4,
-  },
+  } as ViewStyle,
   message: {
     fontSize: 15,
     color: colors.textPrimary,
-  },
+  } as TextStyle,
   messageRight: {
     color: colors.card,
-  },
+  } as TextStyle,
   timestamp: {
     marginTop: 6,
     fontSize: 11,
     color: colors.textMuted,
     textAlign: 'right',
-  },
-  timestampLeft: {},
-  timestampRight: {},
+  } as TextStyle,
+  timestampLeft: {} as TextStyle,
+  timestampRight: {} as TextStyle,
 });
 
 const CHAT_BUBBLE_VARIANTS: Record<

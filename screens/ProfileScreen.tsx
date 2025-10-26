@@ -6,6 +6,8 @@ import {
   StyleSheet,
   Text,
   View,
+  type TextStyle,
+  type ViewStyle,
 } from 'react-native';
 
 import { AppButton, AppTextInput, InfoCard } from '@/components/ui';
@@ -95,49 +97,49 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.xxxl,
     paddingTop: spacing.xl,
     gap: spacing.xl,
-  },
+  } as ViewStyle,
   title: {
     ...typography.heading2,
     color: colors.textPrimary,
-  },
+  } as TextStyle,
   subtitle: {
     ...typography.body,
     color: colors.textMuted,
     lineHeight: 22,
-  },
+  } as TextStyle,
   summaryCard: {
     paddingVertical: spacing.xl,
-  },
+  } as ViewStyle,
   summaryRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     gap: spacing.xxl,
-  },
+  } as ViewStyle,
   summaryLabel: {
     ...typography.caption,
     color: colors.textMuted,
-  },
+  } as TextStyle,
   summaryValue: {
     marginTop: spacing.xs,
     ...typography.subtitle,
     color: colors.textPrimary,
-  },
+  } as TextStyle,
   formCard: {
     gap: spacing.md,
-  },
+  } as ViewStyle,
   formTitle: {
     ...typography.subtitle,
     color: colors.textPrimary,
     marginBottom: spacing.sm,
-  },
+  } as TextStyle,
   input: {
     marginBottom: spacing.md,
-  },
+  } as TextStyle,
   multiline: {
     minHeight: 88,
     textAlignVertical: 'top',
-  },
+  } as TextStyle,
   submitButton: {
     marginTop: spacing.lg,
-  },
+  } as ViewStyle,
 });

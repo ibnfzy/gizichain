@@ -7,6 +7,8 @@ import {
   StyleSheet,
   Text,
   View,
+  type TextStyle,
+  type ViewStyle,
 } from 'react-native';
 
 import { AppButton } from './AppButton';
@@ -92,18 +94,18 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: colors.background,
-  },
+  } as ViewStyle,
   contentContainer: {
     flexGrow: 1,
     justifyContent: 'center',
     paddingHorizontal: spacing.xxxl,
     paddingVertical: spacing.xxxxl,
     gap: spacing.xxl,
-  },
+  } as ViewStyle,
   heroSection: {
     alignItems: 'center',
     gap: spacing.md,
-  },
+  } as ViewStyle,
   illustrationContainer: {
     width: 80,
     height: 80,
@@ -116,41 +118,41 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 6 },
     elevation: 5,
-  },
+  } as ViewStyle,
   illustrationEmoji: {
     fontSize: 38,
-  },
+  } as TextStyle,
   heroMessage: {
     textAlign: 'center',
     color: colors.textMuted,
     ...typography.subtitle,
-  },
+  } as TextStyle,
   cardTitle: {
     textAlign: 'center',
-  },
+  } as TextStyle,
   cardContent: {
     paddingTop: spacing.sm,
-  },
+  } as ViewStyle,
   subtitle: {
     textAlign: 'center',
     color: colors.textMuted,
     ...typography.body,
-  },
+  } as TextStyle,
   formContainer: {
     width: '100%',
     gap: spacing.lg,
-  },
+  } as ViewStyle,
   errorText: {
     textAlign: 'center',
     color: colors.danger,
     ...typography.caption,
-  },
+  } as TextStyle,
   linkButton: {
     alignItems: 'center',
-  },
+  } as ViewStyle,
   linkText: {
     color: colors.pastelLink,
     ...typography.caption,
     fontWeight: '600',
-  },
+  } as TextStyle,
 });
