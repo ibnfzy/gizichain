@@ -8,6 +8,7 @@ import {
   Text,
   TextStyle,
   ViewStyle,
+  type ImageStyle,
 } from 'react-native';
 
 import colors from '@/styles/colors';
@@ -20,7 +21,7 @@ interface AppButtonProps extends Omit<PressableProps, 'style' | 'children'> {
   loading?: boolean;
   variant?: AppButtonVariant;
   textStyle?: StyleProp<TextStyle>;
-  style?: StyleProp<ViewStyle>;
+  style?: StyleProp<ViewStyle | TextStyle | ImageStyle>;
 }
 
 const AppButtonComponent = ({
@@ -33,6 +34,7 @@ const AppButtonComponent = ({
   ...props
 }: AppButtonProps) => {
   const disabledState = disabled || loading;
+  const resolvedStyle = style as StyleProp<ViewStyle>;
 
   const variantStyles = useMemo<{
     container: StyleProp<ViewStyle>;
@@ -60,12 +62,13 @@ const AppButtonComponent = ({
       accessibilityRole="button"
       disabled={disabledState}
       android_ripple={{ color: variantStyles.rippleColor, borderless: false }}
-      style={({ pressed }) => [
-        styles.container,
-        variantStyles.container,
-        pressed && !disabledState ? styles.pressed : null,
-        style,
-      ]}
+      style={({ pressed }) =>
+        [
+          styles.container,
+          variantStyles.container,
+          pressed && !disabledState ? styles.pressed : null,
+          resolvedStyle,
+        ] as StyleProp<ViewStyle>}
       {...props}
     >
       {loading ? (

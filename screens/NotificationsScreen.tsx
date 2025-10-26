@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Text,
   View,
+  type StyleProp,
   type TextStyle,
   type ViewStyle,
 } from 'react-native';
@@ -76,6 +77,7 @@ const formatNotificationTime = (value?: string) => {
 export function NotificationsScreen() {
   const { notifications, loading, refreshing, error, refresh, markAsRead, countsByType } =
     useNotifications();
+  const screenStyle = globalStyles.screen as StyleProp<ViewStyle>;
 
   const totalUnread = notifications.length;
   const scheduleReminderCount = countsByType['schedule-reminder'] ?? 0;
@@ -126,7 +128,7 @@ export function NotificationsScreen() {
   );
 
   return (
-    <View style={globalStyles.screen}>
+    <View style={screenStyle}>
       <ScrollView
         contentContainerStyle={styles.contentContainer}
         showsVerticalScrollIndicator={false}

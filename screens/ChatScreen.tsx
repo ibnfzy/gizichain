@@ -1,4 +1,12 @@
-import { FlatList, StyleSheet, Text, View, type TextStyle, type ViewStyle } from 'react-native';
+import {
+  FlatList,
+  StyleSheet,
+  Text,
+  View,
+  type StyleProp,
+  type TextStyle,
+  type ViewStyle,
+} from 'react-native';
 
 import { AppButton, ChatBubble, InfoCard } from '@/components/ui';
 import { colors, globalStyles, spacing, typography } from '@/styles';
@@ -38,8 +46,10 @@ const SAMPLE_CONVERSATION: ConversationMessage[] = [
 ];
 
 export function ChatScreen() {
+  const screenStyle = globalStyles.screen as StyleProp<ViewStyle>;
+
   return (
-    <View style={globalStyles.screen}>
+    <View style={screenStyle}>
       <FlatList
         data={SAMPLE_CONVERSATION}
         keyExtractor={(item) => item.id}
