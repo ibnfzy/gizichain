@@ -6,9 +6,15 @@ export interface ApiUser {
   email: string;
 }
 
-export interface AuthResponse {
+export interface AuthPayload {
   token: string;
   user: ApiUser;
+}
+
+export interface AuthResponse {
+  status: boolean;
+  message: string;
+  data: AuthPayload;
 }
 
 export interface LoginPayload {
@@ -50,16 +56,16 @@ export const setAuthToken = (token: string | null) => {
 
 export const loginRequest = async (
   payload: LoginPayload
-): Promise<AuthResponse> => {
+): Promise<AuthPayload> => {
   const { data } = await api.post<AuthResponse>("/api/auth/login", payload);
-  return data;
+  return data.data;
 };
 
 export const registerRequest = async (
   payload: RegisterPayload
-): Promise<AuthResponse> => {
+): Promise<AuthPayload> => {
   const { data } = await api.post<AuthResponse>("/api/auth/register", payload);
-  return data;
+  return data.data;
 };
 
 export const fetchLatestInference = async (
