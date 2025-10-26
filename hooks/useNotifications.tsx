@@ -7,11 +7,11 @@ import {
   useMemo,
   useRef,
   useState,
-} from 'react';
-import { AppState } from 'react-native';
+} from "react";
+import { AppState } from "react-native";
 
-import { useAuth } from './useAuth';
-import { Notification, getUnread, markRead } from '@/services/notification';
+import { Notification, getUnread, markRead } from "@/services/notification";
+import { useAuth } from "./useAuth";
 
 type NotificationIdentifier = Notification | string | number;
 
@@ -26,10 +26,14 @@ type NotificationsContextValue = {
   markAsRead: (notification: NotificationIdentifier) => Promise<void>;
 };
 
-const NotificationsContext = createContext<NotificationsContextValue | undefined>(undefined);
+const NotificationsContext = createContext<
+  NotificationsContextValue | undefined
+>(undefined);
 
-const resolveNotificationId = (notification: NotificationIdentifier): string | number => {
-  if (typeof notification === 'object') {
+const resolveNotificationId = (
+  notification: NotificationIdentifier
+): string | number => {
+  if (typeof notification === "object") {
     return notification.id;
   }
 
@@ -42,13 +46,15 @@ const extractNotificationType = (notification: Notification): string => {
     (notification as Record<string, unknown>).notification_type ??
     (notification as Record<string, unknown>).category ??
     (notification as Record<string, unknown>).kind ??
-    (typeof (notification as Record<string, unknown>).data === 'object' &&
+    (typeof (notification as Record<string, unknown>).data === "object" &&
     (notification as Record<string, unknown>).data !== null
       ? (notification as Record<string, unknown>).data &&
         (notification as { data?: { type?: string } }).data?.type
       : undefined);
 
-  return typeof rawType === 'string' ? rawType.toLowerCase().replace(/_/g, '-') : 'general';
+  return typeof rawType === "string"
+    ? rawType.toLowerCase().replace(/_/g, "-")
+    : "general";
 };
 
 interface NotificationsProviderProps {
@@ -66,7 +72,7 @@ export const NotificationsProvider = ({
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const pollerRef = useRef<NodeJS.Timeout | null>(null);
+  const pollerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const hasLoadedRef = useRef(false);
   const isMountedRef = useRef(true);
 
@@ -117,9 +123,9 @@ export const NotificationsProvider = ({
         setNotifications(data ?? []);
         setError(null);
       } catch (err) {
-        console.warn('Failed to fetch unread notifications', err);
+        console.warn("Failed to fetch unread notifications", err);
         if (!silent && isMountedRef.current) {
-          setError('Tidak dapat memuat notifikasi baru. Coba lagi nanti.');
+          setError("Tidak dapat memuat notifikasi baru. Coba lagi nanti.");
         }
       } finally {
         if (!isMountedRef.current) {
@@ -139,7 +145,7 @@ export const NotificationsProvider = ({
         }
       }
     },
-    [motherId],
+    [motherId]
   );
 
   useEffect(() => {
@@ -159,7 +165,7 @@ export const NotificationsProvider = ({
     clearPoller();
     pollerRef.current = setInterval(() => {
       fetchUnread({ silent: true }).catch((err) =>
-        console.warn('Failed to poll notifications', err),
+        console.warn("Failed to poll notifications", err)
       );
     }, pollInterval);
 
@@ -169,10 +175,10 @@ export const NotificationsProvider = ({
   }, [clearPoller, fetchUnread, motherId, pollInterval]);
 
   useEffect(() => {
-    const subscription = AppState.addEventListener('change', (nextState) => {
-      if (nextState === 'active' && motherId) {
+    const subscription = AppState.addEventListener("change", (nextState) => {
+      if (nextState === "active" && motherId) {
         fetchUnread({ silent: true }).catch((err) =>
-          console.warn('Failed to refresh notifications on resume', err),
+          console.warn("Failed to refresh notifications on resume", err)
         );
       }
     });
@@ -192,7 +198,8 @@ export const NotificationsProvider = ({
 
   const scheduleReminders = useMemo(() => {
     return notifications.filter(
-      (notification) => extractNotificationType(notification) === 'schedule-reminder',
+      (notification) =>
+        extractNotificationType(notification) === "schedule-reminder"
     );
   }, [notifications]);
 
@@ -206,12 +213,14 @@ export const NotificationsProvider = ({
           return;
         }
 
-        setNotifications((prev) => prev.filter((item) => item.id !== notificationId));
+        setNotifications((prev) =>
+          prev.filter((item) => item.id !== notificationId)
+        );
       } catch (err) {
-        console.warn('Failed to mark notification as read', err);
+        console.warn("Failed to mark notification as read", err);
       }
     },
-    [],
+    []
   );
 
   const refresh = useCallback(async () => {
@@ -229,17 +238,32 @@ export const NotificationsProvider = ({
       scheduleReminders,
       markAsRead,
     }),
-    [countsByType, error, loading, markAsRead, notifications, refresh, refreshing, scheduleReminders],
+    [
+      countsByType,
+      error,
+      loading,
+      markAsRead,
+      notifications,
+      refresh,
+      refreshing,
+      scheduleReminders,
+    ]
   );
 
-  return <NotificationsContext.Provider value={value}>{children}</NotificationsContext.Provider>;
+  return (
+    <NotificationsContext.Provider value={value}>
+      {children}
+    </NotificationsContext.Provider>
+  );
 };
 
 export const useNotifications = () => {
   const context = useContext(NotificationsContext);
 
   if (!context) {
-    throw new Error('useNotifications must be used within a NotificationsProvider');
+    throw new Error(
+      "useNotifications must be used within a NotificationsProvider"
+    );
   }
 
   return context;
