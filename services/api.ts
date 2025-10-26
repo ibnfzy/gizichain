@@ -17,6 +17,12 @@ export interface AuthResponse {
   data: AuthPayload;
 }
 
+export interface ApiResponse<T> {
+  status: boolean;
+  message: string;
+  data: T;
+}
+
 export interface LoginPayload {
   email: string;
   password: string;
@@ -35,6 +41,25 @@ export interface InferenceData {
   energy: number;
   protein: number;
   fluid: number;
+  updatedAt?: string;
+}
+
+interface InferenceRequirements {
+  energy?: number | string;
+  protein?: number | string;
+  fluid?: number | string;
+}
+
+interface InferencePayload {
+  status?: string;
+  recommendation?: string;
+  notes?: string;
+  requirements?: InferenceRequirements;
+  daily_requirements?: InferenceRequirements;
+  energy?: number | string;
+  protein?: number | string;
+  fluid?: number | string;
+  updated_at?: string;
   updatedAt?: string;
 }
 
@@ -71,35 +96,56 @@ export const registerRequest = async (
 export const fetchLatestInference = async (
   motherId: string | number
 ): Promise<InferenceData> => {
-  const { data } = await api.get("/api/inference/latest", {
+  const response = await api.get<
+    ApiResponse<InferencePayload | InferencePayload[] | null>
+  >("/api/inference/latest", {
     params: { mother_id: motherId },
   });
 
+  const {
+    status: isSuccessful,
+    message,
+    data: payloadData,
+  } = response.data;
+
+  const latestPayload = Array.isArray(payloadData)
+    ? payloadData[0] ?? null
+    : payloadData;
+
+  if (!isSuccessful || !latestPayload) {
+    throw new Error(message || "Failed to fetch latest inference");
+  }
+
+  const requirements: InferenceRequirements =
+    latestPayload.requirements ?? {};
+  const dailyRequirements: InferenceRequirements =
+    latestPayload.daily_requirements ?? {};
+
   return {
-    status: data?.status ?? "unknown",
-    recommendation: data?.recommendation ?? data?.notes,
+    status: latestPayload.status ?? "unknown",
+    recommendation: latestPayload.recommendation ?? latestPayload.notes,
     energy:
       Number(
-        data?.requirements?.energy ??
-          data?.daily_requirements?.energy ??
-          data?.energy ??
+        requirements.energy ??
+          dailyRequirements.energy ??
+          latestPayload.energy ??
           0
       ) || 0,
     protein:
       Number(
-        data?.requirements?.protein ??
-          data?.daily_requirements?.protein ??
-          data?.protein ??
+        requirements.protein ??
+          dailyRequirements.protein ??
+          latestPayload.protein ??
           0
       ) || 0,
     fluid:
       Number(
-        data?.requirements?.fluid ??
-          data?.daily_requirements?.fluid ??
-          data?.fluid ??
+        requirements.fluid ??
+          dailyRequirements.fluid ??
+          latestPayload.fluid ??
           0
       ) || 0,
-    updatedAt: data?.updated_at ?? data?.updatedAt,
+    updatedAt: latestPayload.updated_at ?? latestPayload.updatedAt,
   } as InferenceData;
 };
 
