@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Text,
   View,
+  type StyleProp,
   type TextStyle,
   type ViewStyle,
 } from 'react-native';
@@ -93,6 +94,7 @@ export function ScheduleScreen() {
   const [updatingId, setUpdatingId] = useState<string | number | null>(null);
 
   const motherId = user?.id;
+  const screenStyle = globalStyles.screen as StyleProp<ViewStyle>;
 
   const fetchSchedules = useCallback(async () => {
     if (!motherId) {
@@ -260,7 +262,7 @@ export function ScheduleScreen() {
   }, [handleAttendance, loading, motherId, schedules, updatingId]);
 
   return (
-    <View style={globalStyles.screen}>
+    <View style={screenStyle}>
       <ScrollView
         contentContainerStyle={styles.contentContainer}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={colors.primary} />}

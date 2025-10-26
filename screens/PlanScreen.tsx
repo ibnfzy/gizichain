@@ -1,4 +1,12 @@
-import { ScrollView, StyleSheet, Text, View, type TextStyle, type ViewStyle } from 'react-native';
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+  type StyleProp,
+  type TextStyle,
+  type ViewStyle,
+} from 'react-native';
 
 import { AppButton, InfoCard } from '@/components/ui';
 import { colors, globalStyles, spacing, typography } from '@/styles';
@@ -47,8 +55,10 @@ const WEEKLY_PLAN = [
 ];
 
 export function PlanScreen() {
+  const screenStyle = globalStyles.screen as StyleProp<ViewStyle>;
+
   return (
-    <View style={globalStyles.screen}>
+    <View style={screenStyle}>
       <ScrollView
         contentContainerStyle={styles.contentContainer}
         showsVerticalScrollIndicator={false}

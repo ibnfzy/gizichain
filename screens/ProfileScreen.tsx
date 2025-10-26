@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Text,
   View,
+  type StyleProp,
   type TextStyle,
   type ViewStyle,
 } from 'react-native';
@@ -20,10 +21,13 @@ export function ProfileScreen() {
   const [address, setAddress] = useState('Jl. Mawar No. 12, Bandung');
   const [notes, setNotes] = useState('Tidak ada alergi yang diketahui.');
 
+  const screenStyle = globalStyles.screen as StyleProp<ViewStyle>;
+  const cardStyle = globalStyles.card as StyleProp<ViewStyle>;
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      style={globalStyles.screen}
+      style={screenStyle}
     >
       <ScrollView
         contentContainerStyle={styles.contentContainer}
@@ -47,7 +51,7 @@ export function ProfileScreen() {
           </View>
         </InfoCard>
 
-        <View style={[globalStyles.card, styles.formCard]}>
+        <View style={[cardStyle, styles.formCard]}>
           <Text style={styles.formTitle}>Informasi Dasar</Text>
           <AppTextInput
             value={fullName}
