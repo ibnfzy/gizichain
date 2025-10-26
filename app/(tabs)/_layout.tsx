@@ -56,6 +56,8 @@ export default function TabsLayout() {
           tabBarIcon: ({ color, size }) => (
             <Feather name="clock" size={size ?? 22} color={color} />
           ),
+          tabBarBadge:
+            scheduleBadgeCount > 0 ? Math.min(scheduleBadgeCount, 99) : undefined,
         }}
       />
       <Tabs.Screen
