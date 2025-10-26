@@ -50,17 +50,24 @@ interface InferenceRequirements {
   fluid?: number | string;
 }
 
+interface InferenceOutput {
+  requirements?: InferenceRequirements;
+  daily_requirements?: InferenceRequirements;
+}
+
 interface InferencePayload {
   status?: string;
   recommendation?: string;
   notes?: string;
   requirements?: InferenceRequirements;
   daily_requirements?: InferenceRequirements;
+  output?: InferenceOutput;
   energy?: number | string;
   protein?: number | string;
   fluid?: number | string;
   updated_at?: string;
   updatedAt?: string;
+  created_at_human?: string;
 }
 
 const api = axios.create({
@@ -93,11 +100,54 @@ export const registerRequest = async (
   return data.data;
 };
 
+interface LatestInferenceResponse {
+  mother?: unknown;
+  inference?: InferencePayload | null;
+}
+
+const parseNumber = (
+  value: number | string | undefined | null
+): number | undefined => {
+  if (value === undefined || value === null) {
+    return undefined;
+  }
+
+  const parsed = typeof value === "number" ? value : Number(value);
+  return Number.isFinite(parsed) ? parsed : undefined;
+};
+
+const getRequirementValue = (
+  key: keyof InferenceRequirements,
+  output: InferenceOutput | undefined,
+  legacy: InferenceRequirements | undefined,
+  legacyDaily: InferenceRequirements | undefined,
+  fallback: number | string | undefined
+): number => {
+  const requirements = output?.requirements ?? {};
+  const dailyRequirements = output?.daily_requirements ?? {};
+
+  const sources = [
+    parseNumber(requirements[key]),
+    parseNumber(dailyRequirements[key]),
+    parseNumber(legacy?.[key]),
+    parseNumber(legacyDaily?.[key]),
+    parseNumber(fallback),
+  ];
+
+  for (const value of sources) {
+    if (value !== undefined) {
+      return value;
+    }
+  }
+
+  return 0;
+};
+
 export const fetchLatestInference = async (
   motherId: string | number
-): Promise<InferenceData> => {
+): Promise<InferenceData | null> => {
   const response = await api.get<
-    ApiResponse<InferencePayload | InferencePayload[] | null>
+    ApiResponse<LatestInferenceResponse | LatestInferenceResponse[] | null>
   >("/api/inference/latest", {
     params: { mother_id: motherId },
   });
@@ -108,40 +158,51 @@ export const fetchLatestInference = async (
     ? payloadData[0] ?? null
     : payloadData;
 
-  if (!isSuccessful || !latestPayload) {
+  if (!isSuccessful) {
     throw new Error(message || "Failed to fetch latest inference");
   }
 
-  const requirements: InferenceRequirements = latestPayload.requirements ?? {};
+  const inference = latestPayload?.inference ?? null;
+
+  if (!inference) {
+    return null;
+  }
+
+  const requirements: InferenceRequirements = inference.requirements ?? {};
   const dailyRequirements: InferenceRequirements =
-    latestPayload.daily_requirements ?? {};
+    inference.daily_requirements ?? {};
+
+  const output = inference.output ?? {};
 
   return {
-    status: latestPayload.status ?? "unknown",
-    recommendation: latestPayload.recommendation ?? latestPayload.notes,
-    energy:
-      Number(
-        requirements.energy ??
-          dailyRequirements.energy ??
-          latestPayload.energy ??
-          0
-      ) || 0,
-    protein:
-      Number(
-        requirements.protein ??
-          dailyRequirements.protein ??
-          latestPayload.protein ??
-          0
-      ) || 0,
-    fluid:
-      Number(
-        requirements.fluid ??
-          dailyRequirements.fluid ??
-          latestPayload.fluid ??
-          0
-      ) || 0,
-    updatedAt: latestPayload.updated_at ?? latestPayload.updatedAt,
-  } as InferenceData;
+    status: inference.status ?? "unknown",
+    recommendation: inference.recommendation ?? inference.notes,
+    energy: getRequirementValue(
+      "energy",
+      output,
+      requirements,
+      dailyRequirements,
+      inference.energy
+    ),
+    protein: getRequirementValue(
+      "protein",
+      output,
+      requirements,
+      dailyRequirements,
+      inference.protein
+    ),
+    fluid: getRequirementValue(
+      "fluid",
+      output,
+      requirements,
+      dailyRequirements,
+      inference.fluid
+    ),
+    updatedAt:
+      inference.created_at_human ??
+      inference.updated_at ??
+      inference.updatedAt,
+  };
 };
 
 export default api;
