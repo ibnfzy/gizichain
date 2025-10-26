@@ -12,11 +12,15 @@ export interface Notification {
 export const getUnread = async (
   motherId: string | number
 ): Promise<Notification[]> => {
-  const { data } = await api.get<Notification[]>("/api/notifications", {
+  const response = await api.get<{
+    status: string;
+    message: string;
+    data: Notification[];
+  }>("/api/notifications", {
     params: { mother_id: motherId, unread: 1 },
   });
 
-  return data;
+  return response.data.data ?? [];
 };
 
 export const markRead = async (
