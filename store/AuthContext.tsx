@@ -2,7 +2,7 @@ import { createContext, ReactNode, useCallback, useEffect, useMemo, useState } f
 import { deleteItemAsync, getItemAsync, setItemAsync } from './secureStorage';
 import {
   ApiUser,
-  AuthResponse,
+  AuthPayload,
   LoginPayload,
   RegisterPayload,
   loginRequest,
@@ -14,8 +14,8 @@ interface AuthContextState {
   user: ApiUser | null;
   token: string | null;
   isLoading: boolean;
-  login: (payload: LoginPayload) => Promise<AuthResponse>;
-  register: (payload: RegisterPayload) => Promise<AuthResponse>;
+  login: (payload: LoginPayload) => Promise<AuthPayload>;
+  register: (payload: RegisterPayload) => Promise<AuthPayload>;
   logout: () => Promise<void>;
   setUser: (user: ApiUser | null) => void;
 }
