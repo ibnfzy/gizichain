@@ -72,11 +72,19 @@ const normalizeStatus = (status?: string) => {
     return "healthy" as const;
   }
 
-  if (["kuning", "waspada", "warning"].includes(normalized)) {
+  if (
+    ["kuning", "waspada", "warning", "moderate", "sedang"].includes(
+      normalized
+    )
+  ) {
     return "warning" as const;
   }
 
-  if (["merah", "buruk", "danger", "critical"].includes(normalized)) {
+  if (
+    ["merah", "buruk", "danger", "critical", "parah", "severe"].includes(
+      normalized
+    )
+  ) {
     return "critical" as const;
   }
 
@@ -159,6 +167,11 @@ export function DashboardScreen() {
       text: StyleSheet.compose(styles.statusText, STATUS_VARIANTS.unknownText),
     };
   }, [inference?.status]);
+
+  const statusLabel = useMemo(() => {
+    const fallback = inference?.status ?? "Belum ada data";
+    return inference?.statusMeta?.label ?? fallback;
+  }, [inference?.status, inference?.statusMeta?.label]);
 
   const fetchData = useCallback(async () => {
     if (!motherId) {
@@ -317,9 +330,7 @@ export function DashboardScreen() {
       ) : null}
 
       <Animated.View style={[statusCardStyle, animatedEntranceStyle]}>
-        <Text style={statusVariant.badge}>
-          {(inference?.status ?? "Belum ada data").toUpperCase()}
-        </Text>
+        <Text style={statusVariant.badge}>{statusLabel.toUpperCase()}</Text>
         {noInferenceAvailable ? (
           <Text style={statusVariant.text}>
             Belum ada hasil inferensi untuk ibu ini.

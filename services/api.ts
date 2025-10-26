@@ -35,8 +35,17 @@ export interface RegisterPayload {
   password_confirmation: string;
 }
 
+export interface InferenceStatusMeta {
+  code?: string;
+  label?: string;
+  badge?: string;
+  tone?: string;
+  source?: string;
+}
+
 export interface InferenceData {
   status: string;
+  statusMeta?: InferenceStatusMeta;
   recommendation?: string;
   energy: number;
   protein: number;
@@ -55,8 +64,17 @@ interface InferenceOutput {
   daily_requirements?: InferenceRequirements;
 }
 
+interface InferenceStatusPayload {
+  code?: string;
+  label?: string;
+  badge?: string;
+  tone?: string;
+  source?: string;
+  [key: string]: unknown;
+}
+
 interface InferencePayload {
-  status?: string;
+  status?: string | InferenceStatusPayload | null;
   recommendation?: string;
   notes?: string;
   requirements?: InferenceRequirements;
@@ -143,6 +161,51 @@ const getRequirementValue = (
   return 0;
 };
 
+const parseInferenceStatus = (
+  status: InferencePayload["status"]
+): { value: string; meta?: InferenceStatusMeta } => {
+  if (!status) {
+    return { value: "unknown" };
+  }
+
+  if (typeof status === "string") {
+    return { value: status };
+  }
+
+  if (typeof status === "object") {
+    const meta: InferenceStatusMeta = {};
+
+    if (typeof status.code === "string" && status.code.trim().length > 0) {
+      meta.code = status.code;
+    }
+
+    if (typeof status.label === "string" && status.label.trim().length > 0) {
+      meta.label = status.label;
+    }
+
+    if (typeof status.badge === "string" && status.badge.trim().length > 0) {
+      meta.badge = status.badge;
+    }
+
+    if (typeof status.tone === "string" && status.tone.trim().length > 0) {
+      meta.tone = status.tone;
+    }
+
+    if (typeof status.source === "string" && status.source.trim().length > 0) {
+      meta.source = status.source;
+    }
+
+    const value = meta.code ?? meta.label ?? "unknown";
+
+    return {
+      value,
+      meta: Object.keys(meta).length > 0 ? meta : undefined,
+    };
+  }
+
+  return { value: "unknown" };
+};
+
 export const fetchLatestInference = async (
   motherId: string | number
 ): Promise<InferenceData | null> => {
@@ -174,8 +237,13 @@ export const fetchLatestInference = async (
 
   const output = inference.output ?? {};
 
+  const { value: statusValue, meta: statusMeta } = parseInferenceStatus(
+    inference.status
+  );
+
   return {
-    status: inference.status ?? "unknown",
+    status: statusValue,
+    statusMeta,
     recommendation: inference.recommendation ?? inference.notes,
     energy: getRequirementValue(
       "energy",
