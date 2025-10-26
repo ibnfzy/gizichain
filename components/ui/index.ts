@@ -9,6 +9,7 @@
 export { AppButton } from './AppButton';
 export type { AppButtonVariant } from './AppButton';
 export { AppTextInput } from './AppTextInput';
+export { AppSelect } from './AppSelect';
 export { InfoCard } from './InfoCard';
 export type { InfoCardVariant } from './InfoCard';
 export { AuthLayout } from './AuthLayout';
