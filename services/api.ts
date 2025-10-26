@@ -29,11 +29,28 @@ export interface LoginPayload {
   password: string;
 }
 
-export interface RegisterPayload {
+export interface RegisterUserPayload {
   name: string;
   email: string;
   password: string;
   password_confirmation: string;
+}
+
+export interface RegisterMotherPayload {
+  bb: number;
+  tb: number;
+  umur: number;
+  usia_bayi_bln: number;
+  laktasi_tipe: string;
+  aktivitas: string;
+  alergi: string[];
+  preferensi: string[];
+  riwayat_penyakit: string[];
+}
+
+export interface RegisterPayload {
+  user: RegisterUserPayload;
+  ibu: RegisterMotherPayload;
 }
 
 export interface InferenceStatusMeta {

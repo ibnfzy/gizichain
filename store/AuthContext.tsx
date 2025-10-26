@@ -147,7 +147,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const handleRegister = useCallback(
     async (payload: RegisterPayload) => {
       const response = await registerRequest(payload);
-      console.log(response);
       await persistAuth(response.token, response.user);
       return response;
     },
