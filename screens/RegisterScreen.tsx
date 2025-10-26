@@ -1,9 +1,20 @@
 import { useMemo, useState } from 'react';
 import { Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { AuthLayout, AppTextInput } from '@/components/ui';
+import { AuthLayout, AppSelect, AppTextInput } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
 import { normalizeApiError } from '@/services/api';
+
+const LAKTASI_OPTIONS = [
+  { label: 'Eksklusif', value: 'eksklusif' },
+  { label: 'Parsial', value: 'parsial' },
+];
+
+const AKTIVITAS_OPTIONS = [
+  { label: 'Ringan', value: 'ringan' },
+  { label: 'Sedang', value: 'sedang' },
+  { label: 'Berat', value: 'berat' },
+];
 
 export function RegisterScreen() {
   const router = useRouter();
@@ -18,8 +29,8 @@ export function RegisterScreen() {
   const [tb, setTb] = useState('');
   const [umur, setUmur] = useState('');
   const [usiaBayi, setUsiaBayi] = useState('');
-  const [laktasiTipe, setLaktasiTipe] = useState('');
-  const [aktivitas, setAktivitas] = useState('');
+  const [laktasiTipe, setLaktasiTipe] = useState('eksklusif');
+  const [aktivitas, setAktivitas] = useState('ringan');
   const [alergi, setAlergi] = useState('');
   const [preferensi, setPreferensi] = useState('');
   const [riwayatPenyakit, setRiwayatPenyakit] = useState('');
@@ -373,21 +384,27 @@ export function RegisterScreen() {
                 'mother.usia_bayi_bln'
               )}
             />
-            <AppTextInput
-              placeholder="Tipe laktasi"
+            <AppSelect
+              placeholder="Pilih tipe laktasi"
               value={laktasiTipe}
-              onChangeText={setLaktasiTipe}
+              options={LAKTASI_OPTIONS}
+              onValueChange={setLaktasiTipe}
               errorMessage={resolveFieldError(
                 'laktasi_tipe',
                 'ibu.laktasi_tipe',
                 'mother.laktasi_tipe'
               )}
             />
-            <AppTextInput
-              placeholder="Tingkat aktivitas"
+            <AppSelect
+              placeholder="Pilih tingkat aktivitas"
               value={aktivitas}
-              onChangeText={setAktivitas}
-              errorMessage={resolveFieldError('aktivitas', 'ibu.aktivitas', 'mother.aktivitas')}
+              options={AKTIVITAS_OPTIONS}
+              onValueChange={setAktivitas}
+              errorMessage={resolveFieldError(
+                'aktivitas',
+                'ibu.aktivitas',
+                'mother.aktivitas'
+              )}
             />
             <View style={{ gap: 12 }}>
               <Text style={{ fontSize: 12, color: '#6b7280' }}>
