@@ -86,14 +86,13 @@ const formatAttendance = (attendance?: AttendanceStatus | null) => {
 };
 
 export function ScheduleScreen() {
-  const { user } = useAuth();
+  const { motherId } = useAuth();
   const [schedules, setSchedules] = useState<FullSchedule[]>([]);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [updatingId, setUpdatingId] = useState<string | number | null>(null);
 
-  const motherId = user?.id;
   const screenStyle = globalStyles.screen as StyleProp<ViewStyle>;
 
   const fetchSchedules = useCallback(async () => {
