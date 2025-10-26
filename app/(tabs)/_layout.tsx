@@ -1,13 +1,22 @@
 import { StyleSheet, type TextStyle, type ViewStyle } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { HapticTab } from '@/components/haptic-tab';
 import { useNotifications } from '@/hooks/useNotifications';
 import { colors, spacing } from '@/styles';
 
+const TAB_BAR_BASE_HEIGHT = 64;
+
 export default function TabsLayout() {
   const { countsByType } = useNotifications();
+  const insets = useSafeAreaInsets();
+  const safePaddingBottom = Math.max(insets.bottom, spacing.sm);
+  const tabBarDynamicStyle: ViewStyle = {
+    paddingBottom: safePaddingBottom,
+    height: TAB_BAR_BASE_HEIGHT - spacing.sm + safePaddingBottom,
+  };
   const scheduleBadgeCount =
     (countsByType['schedule-reminder'] ?? 0) + (countsByType['schedule'] ?? 0);
 
@@ -17,7 +26,7 @@ export default function TabsLayout() {
         headerShown: false,
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textMuted,
-        tabBarStyle: [styles.tabBar],
+        tabBarStyle: [styles.tabBar, tabBarDynamicStyle],
         tabBarLabelStyle: styles.tabLabel,
         tabBarButton: (props) => <HapticTab {...props} />,
       }}
@@ -75,7 +84,7 @@ export default function TabsLayout() {
 const styles = StyleSheet.create({
   tabBar: {
     backgroundColor: colors.card,
-    height: 64,
+    height: TAB_BAR_BASE_HEIGHT,
     paddingTop: spacing.xs,
     paddingBottom: spacing.sm,
     borderTopWidth: StyleSheet.hairlineWidth,
