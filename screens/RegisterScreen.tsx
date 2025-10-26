@@ -3,6 +3,7 @@ import { Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { AuthLayout, AppTextInput } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
+import { normalizeApiError } from '@/services/api';
 
 export function RegisterScreen() {
   const router = useRouter();
@@ -24,6 +25,49 @@ export function RegisterScreen() {
   const [riwayatPenyakit, setRiwayatPenyakit] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+
+  type FieldErrorUpdate = { keys: string[]; message?: string };
+
+  const updateFieldErrors = (updates: FieldErrorUpdate[]) => {
+    setFieldErrors((prev) => {
+      const next = { ...prev };
+
+      for (const update of updates) {
+        for (const key of update.keys) {
+          if (!key) {
+            continue;
+          }
+
+          if (update.message) {
+            next[key] = update.message;
+          } else {
+            delete next[key];
+          }
+        }
+      }
+
+      return next;
+    });
+  };
+
+  const resolveFieldError = (
+    ...keys: Array<string | undefined>
+  ): string | undefined => {
+    for (const key of keys) {
+      if (!key) {
+        continue;
+      }
+
+      const message = fieldErrors[key];
+
+      if (message) {
+        return message;
+      }
+    }
+
+    return undefined;
+  };
 
   const parseNumberField = (value: string) => {
     if (!value.trim()) {
@@ -44,26 +88,49 @@ export function RegisterScreen() {
 
   const validateStepOne = () => {
     const issues: string[] = [];
+    const nameError = !name.trim() ? 'Nama wajib diisi.' : undefined;
+    const emailError = !email.trim() ? 'Email wajib diisi.' : undefined;
+    const passwordError = !password ? 'Kata sandi wajib diisi.' : undefined;
 
-    if (!name.trim()) {
-      issues.push('Nama wajib diisi.');
+    let confirmationError = !confirmation
+      ? 'Konfirmasi kata sandi wajib diisi.'
+      : undefined;
+
+    if (!passwordError && !confirmationError && password !== confirmation) {
+      confirmationError = 'Konfirmasi kata sandi tidak cocok.';
     }
 
-    if (!email.trim()) {
-      issues.push('Email wajib diisi.');
+    for (const message of [
+      nameError,
+      emailError,
+      passwordError,
+      confirmationError,
+    ]) {
+      if (message) {
+        issues.push(message);
+      }
     }
 
-    if (!password) {
-      issues.push('Kata sandi wajib diisi.');
-    }
+    const updates: FieldErrorUpdate[] = [
+      {
+        keys: ['name', 'user.name'],
+        message: nameError,
+      },
+      {
+        keys: ['email', 'user.email'],
+        message: emailError,
+      },
+      {
+        keys: ['password', 'user.password'],
+        message: passwordError,
+      },
+      {
+        keys: ['password_confirmation', 'user.password_confirmation'],
+        message: confirmationError,
+      },
+    ];
 
-    if (!confirmation) {
-      issues.push('Konfirmasi kata sandi wajib diisi.');
-    }
-
-    if (password && confirmation && password !== confirmation) {
-      issues.push('Konfirmasi kata sandi tidak cocok.');
-    }
+    updateFieldErrors(updates);
 
     if (issues.length > 0) {
       setError(issues.join('\n'));
@@ -82,29 +149,59 @@ export function RegisterScreen() {
     const parsedUmur = parseNumberField(umur);
     const parsedUsiaBayi = parseNumberField(usiaBayi);
 
-    if (parsedBb === null) {
-      issues.push('Berat badan (bb) harus berupa angka.');
+    const bbError = parsedBb === null ? 'Berat badan (bb) harus berupa angka.' : undefined;
+    const tbError = parsedTb === null ? 'Tinggi badan (tb) harus berupa angka.' : undefined;
+    const umurError = parsedUmur === null ? 'Umur ibu harus berupa angka.' : undefined;
+    const usiaBayiError =
+      parsedUsiaBayi === null ? 'Usia bayi (bulan) harus berupa angka.' : undefined;
+    const laktasiError = !laktasiTipe.trim()
+      ? 'Jenis laktasi wajib diisi.'
+      : undefined;
+    const aktivitasError = !aktivitas.trim()
+      ? 'Tingkat aktivitas wajib diisi.'
+      : undefined;
+
+    for (const message of [
+      bbError,
+      tbError,
+      umurError,
+      usiaBayiError,
+      laktasiError,
+      aktivitasError,
+    ]) {
+      if (message) {
+        issues.push(message);
+      }
     }
 
-    if (parsedTb === null) {
-      issues.push('Tinggi badan (tb) harus berupa angka.');
-    }
+    const updates: FieldErrorUpdate[] = [
+      {
+        keys: ['bb', 'ibu.bb', 'mother.bb'],
+        message: bbError,
+      },
+      {
+        keys: ['tb', 'ibu.tb', 'mother.tb'],
+        message: tbError,
+      },
+      {
+        keys: ['umur', 'ibu.umur', 'mother.umur'],
+        message: umurError,
+      },
+      {
+        keys: ['usia_bayi_bln', 'ibu.usia_bayi_bln', 'mother.usia_bayi_bln'],
+        message: usiaBayiError,
+      },
+      {
+        keys: ['laktasi_tipe', 'ibu.laktasi_tipe', 'mother.laktasi_tipe'],
+        message: laktasiError,
+      },
+      {
+        keys: ['aktivitas', 'ibu.aktivitas', 'mother.aktivitas'],
+        message: aktivitasError,
+      },
+    ];
 
-    if (parsedUmur === null) {
-      issues.push('Umur ibu harus berupa angka.');
-    }
-
-    if (parsedUsiaBayi === null) {
-      issues.push('Usia bayi (bulan) harus berupa angka.');
-    }
-
-    if (!laktasiTipe.trim()) {
-      issues.push('Jenis laktasi wajib diisi.');
-    }
-
-    if (!aktivitas.trim()) {
-      issues.push('Tingkat aktivitas wajib diisi.');
-    }
+    updateFieldErrors(updates);
 
     if (issues.length > 0) {
       setError(issues.join('\n'));
@@ -140,6 +237,8 @@ export function RegisterScreen() {
     }
 
     setSubmitting(true);
+    setFieldErrors({});
+    setError(null);
 
     try {
       await register({
@@ -153,7 +252,10 @@ export function RegisterScreen() {
       });
       router.replace('/(tabs)/dashboard');
     } catch (err: unknown) {
-      setError('Tidak dapat mendaftarkan akun. Silakan coba lagi.');
+      const apiError = normalizeApiError(err);
+
+      setError(apiError.message);
+      setFieldErrors(apiError.fieldErrors ?? {});
       console.warn('Register error', err);
     } finally {
       setSubmitting(false);
@@ -204,7 +306,12 @@ export function RegisterScreen() {
         <Text style={{ textAlign: 'center', fontWeight: '600' }}>{stepDescription}</Text>
         {isStepOne ? (
           <View style={{ gap: 16 }}>
-            <AppTextInput placeholder="Nama lengkap" value={name} onChangeText={setName} />
+            <AppTextInput
+              placeholder="Nama lengkap"
+              value={name}
+              onChangeText={setName}
+              errorMessage={resolveFieldError('name', 'user.name')}
+            />
             <AppTextInput
               autoCapitalize="none"
               autoComplete="email"
@@ -212,18 +319,24 @@ export function RegisterScreen() {
               placeholder="Email"
               value={email}
               onChangeText={setEmail}
+              errorMessage={resolveFieldError('email', 'user.email')}
             />
             <AppTextInput
               placeholder="Kata sandi"
               secureTextEntry
               value={password}
               onChangeText={setPassword}
+              errorMessage={resolveFieldError('password', 'user.password')}
             />
             <AppTextInput
               placeholder="Konfirmasi kata sandi"
               secureTextEntry
               value={confirmation}
               onChangeText={setConfirmation}
+              errorMessage={resolveFieldError(
+                'password_confirmation',
+                'user.password_confirmation'
+              )}
             />
           </View>
         ) : (
@@ -233,34 +346,48 @@ export function RegisterScreen() {
               placeholder="Berat badan (kg)"
               value={bb}
               onChangeText={setBb}
+              errorMessage={resolveFieldError('bb', 'ibu.bb', 'mother.bb')}
             />
             <AppTextInput
               keyboardType="numeric"
               placeholder="Tinggi badan (cm)"
               value={tb}
               onChangeText={setTb}
+              errorMessage={resolveFieldError('tb', 'ibu.tb', 'mother.tb')}
             />
             <AppTextInput
               keyboardType="numeric"
               placeholder="Umur ibu"
               value={umur}
               onChangeText={setUmur}
+              errorMessage={resolveFieldError('umur', 'ibu.umur', 'mother.umur')}
             />
             <AppTextInput
               keyboardType="numeric"
               placeholder="Usia bayi (bulan)"
               value={usiaBayi}
               onChangeText={setUsiaBayi}
+              errorMessage={resolveFieldError(
+                'usia_bayi_bln',
+                'ibu.usia_bayi_bln',
+                'mother.usia_bayi_bln'
+              )}
             />
             <AppTextInput
               placeholder="Tipe laktasi"
               value={laktasiTipe}
               onChangeText={setLaktasiTipe}
+              errorMessage={resolveFieldError(
+                'laktasi_tipe',
+                'ibu.laktasi_tipe',
+                'mother.laktasi_tipe'
+              )}
             />
             <AppTextInput
               placeholder="Tingkat aktivitas"
               value={aktivitas}
               onChangeText={setAktivitas}
+              errorMessage={resolveFieldError('aktivitas', 'ibu.aktivitas', 'mother.aktivitas')}
             />
             <View style={{ gap: 12 }}>
               <Text style={{ fontSize: 12, color: '#6b7280' }}>
@@ -270,16 +397,27 @@ export function RegisterScreen() {
                 placeholder="Alergi (pisahkan dengan koma)"
                 value={alergi}
                 onChangeText={setAlergi}
+                errorMessage={resolveFieldError('alergi', 'ibu.alergi', 'mother.alergi')}
               />
               <AppTextInput
                 placeholder="Preferensi makanan (pisahkan dengan koma)"
                 value={preferensi}
                 onChangeText={setPreferensi}
+                errorMessage={resolveFieldError(
+                  'preferensi',
+                  'ibu.preferensi',
+                  'mother.preferensi'
+                )}
               />
               <AppTextInput
                 placeholder="Riwayat penyakit (pisahkan dengan koma)"
                 value={riwayatPenyakit}
                 onChangeText={setRiwayatPenyakit}
+                errorMessage={resolveFieldError(
+                  'riwayat_penyakit',
+                  'ibu.riwayat_penyakit',
+                  'mother.riwayat_penyakit'
+                )}
               />
             </View>
           </View>
