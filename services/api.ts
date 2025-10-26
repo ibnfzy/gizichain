@@ -102,11 +102,7 @@ export const fetchLatestInference = async (
     params: { mother_id: motherId },
   });
 
-  const {
-    status: isSuccessful,
-    message,
-    data: payloadData,
-  } = response.data;
+  const { status: isSuccessful, message, data: payloadData } = response.data;
 
   const latestPayload = Array.isArray(payloadData)
     ? payloadData[0] ?? null
@@ -116,8 +112,7 @@ export const fetchLatestInference = async (
     throw new Error(message || "Failed to fetch latest inference");
   }
 
-  const requirements: InferenceRequirements =
-    latestPayload.requirements ?? {};
+  const requirements: InferenceRequirements = latestPayload.requirements ?? {};
   const dailyRequirements: InferenceRequirements =
     latestPayload.daily_requirements ?? {};
 

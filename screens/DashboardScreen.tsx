@@ -1,4 +1,13 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { AppButton, InfoCard } from "@/components/ui";
+import { useAuth } from "@/hooks/useAuth";
+import { useNotifications } from "@/hooks/useNotifications";
+import { InferenceData, fetchLatestInference } from "@/services/api";
+import { colors, globalStyles, spacing, typography } from "@/styles";
+import { Feather } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
+import { useRouter } from "expo-router";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type { StyleProp, TextStyle, ViewStyle } from "react-native";
 import {
   Animated,
   Easing,
@@ -7,16 +16,7 @@ import {
   StyleSheet,
   Text,
   View,
-} from 'react-native';
-import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
-import { useRouter } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Feather } from '@expo/vector-icons';
-import { AppButton, InfoCard } from '@/components/ui';
-import { useAuth } from '@/hooks/useAuth';
-import { useNotifications } from '@/hooks/useNotifications';
-import { InferenceData, fetchLatestInference } from '@/services/api';
-import { colors, globalStyles, spacing, typography } from '@/styles';
+} from "react-native";
 
 const STATUS_VARIANTS = StyleSheet.create({
   healthyContainer: {
@@ -66,21 +66,21 @@ const STATUS_VARIANTS = StyleSheet.create({
 });
 
 const normalizeStatus = (status?: string) => {
-  const normalized = status?.toLowerCase() ?? 'unknown';
+  const normalized = status?.toLowerCase() ?? "unknown";
 
-  if (['sehat', 'baik', 'normal', 'green'].includes(normalized)) {
-    return 'healthy' as const;
+  if (["sehat", "baik", "normal", "green"].includes(normalized)) {
+    return "healthy" as const;
   }
 
-  if (['kuning', 'waspada', 'warning'].includes(normalized)) {
-    return 'warning' as const;
+  if (["kuning", "waspada", "warning"].includes(normalized)) {
+    return "warning" as const;
   }
 
-  if (['merah', 'buruk', 'danger', 'critical'].includes(normalized)) {
-    return 'critical' as const;
+  if (["merah", "buruk", "danger", "critical"].includes(normalized)) {
+    return "critical" as const;
   }
 
-  return 'unknown' as const;
+  return "unknown" as const;
 };
 
 export function DashboardScreen() {
@@ -95,7 +95,10 @@ export function DashboardScreen() {
 
   const motherId = user?.id;
   const latestScheduleReminder = scheduleReminders[0];
-  const additionalScheduleReminderCount = Math.max(scheduleReminders.length - 1, 0);
+  const additionalScheduleReminderCount = Math.max(
+    scheduleReminders.length - 1,
+    0
+  );
 
   const statusVariant = useMemo<{
     container: ViewStyle;
@@ -104,33 +107,54 @@ export function DashboardScreen() {
   }>(() => {
     const status = normalizeStatus(inference?.status);
 
-    if (status === 'healthy') {
+    if (status === "healthy") {
       return {
         container: STATUS_VARIANTS.healthyContainer,
-        badge: StyleSheet.compose(styles.statusBadge, STATUS_VARIANTS.healthyBadge),
-        text: StyleSheet.compose(styles.statusText, STATUS_VARIANTS.healthyText),
+        badge: StyleSheet.compose(
+          styles.statusBadge,
+          STATUS_VARIANTS.healthyBadge
+        ),
+        text: StyleSheet.compose(
+          styles.statusText,
+          STATUS_VARIANTS.healthyText
+        ),
       };
     }
 
-    if (status === 'warning') {
+    if (status === "warning") {
       return {
         container: STATUS_VARIANTS.warningContainer,
-        badge: StyleSheet.compose(styles.statusBadge, STATUS_VARIANTS.warningBadge),
-        text: StyleSheet.compose(styles.statusText, STATUS_VARIANTS.warningText),
+        badge: StyleSheet.compose(
+          styles.statusBadge,
+          STATUS_VARIANTS.warningBadge
+        ),
+        text: StyleSheet.compose(
+          styles.statusText,
+          STATUS_VARIANTS.warningText
+        ),
       };
     }
 
-    if (status === 'critical') {
+    if (status === "critical") {
       return {
         container: STATUS_VARIANTS.criticalContainer,
-        badge: StyleSheet.compose(styles.statusBadge, STATUS_VARIANTS.criticalBadge),
-        text: StyleSheet.compose(styles.statusText, STATUS_VARIANTS.criticalText),
+        badge: StyleSheet.compose(
+          styles.statusBadge,
+          STATUS_VARIANTS.criticalBadge
+        ),
+        text: StyleSheet.compose(
+          styles.statusText,
+          STATUS_VARIANTS.criticalText
+        ),
       };
     }
 
     return {
       container: STATUS_VARIANTS.unknownContainer,
-      badge: StyleSheet.compose(styles.statusBadge, STATUS_VARIANTS.unknownBadge),
+      badge: StyleSheet.compose(
+        styles.statusBadge,
+        STATUS_VARIANTS.unknownBadge
+      ),
       text: StyleSheet.compose(styles.statusText, STATUS_VARIANTS.unknownText),
     };
   }, [inference?.status]);
@@ -145,10 +169,11 @@ export function DashboardScreen() {
     setError(null);
     try {
       const data = await fetchLatestInference(motherId);
+      console.log(data);
       setInference(data);
     } catch (err: unknown) {
-      console.warn('Failed to fetch inference data', err);
-      setError('Tidak dapat memuat data inferensi. Coba lagi nanti.');
+      console.warn("Failed to fetch inference data", err);
+      setError("Tidak dapat memuat data inferensi. Coba lagi nanti.");
     } finally {
       setLoading(false);
     }
@@ -160,7 +185,7 @@ export function DashboardScreen() {
 
   useEffect(() => {
     if (!authLoading && !user) {
-      router.replace('/login');
+      router.replace("/login");
     }
   }, [authLoading, router, user]);
 
@@ -172,16 +197,20 @@ export function DashboardScreen() {
       setInference(data);
       setError(null);
     } catch (err: unknown) {
-      console.warn('Failed to refresh inference data', err);
-      setError('Tidak dapat memuat data inferensi. Coba lagi nanti.');
+      console.warn("Failed to refresh inference data", err);
+      setError("Tidak dapat memuat data inferensi. Coba lagi nanti.");
     } finally {
       setRefreshing(false);
     }
   }, [motherId]);
 
   const statusCardStyle = useMemo<StyleProp<ViewStyle>>(
-    () => [globalStyles.cardPastel as ViewStyle, styles.statusCard, statusVariant.container],
-    [statusVariant.container],
+    () => [
+      globalStyles.cardPastel as ViewStyle,
+      styles.statusCard,
+      statusVariant.container,
+    ],
+    [statusVariant.container]
   );
 
   const animatedEntranceStyle = useMemo(
@@ -196,7 +225,7 @@ export function DashboardScreen() {
         },
       ],
     }),
-    [inferenceAnimation],
+    [inferenceAnimation]
   );
 
   useEffect(() => {
@@ -214,11 +243,13 @@ export function DashboardScreen() {
   }, [inference?.updatedAt, loading, inferenceAnimation]);
 
   const handleOpenSchedule = useCallback(() => {
-    router.push('/(tabs)/schedule');
+    router.push("/(tabs)/schedule");
 
     if (scheduleReminders.length > 0) {
-      Promise.all(scheduleReminders.map((reminder) => markAsRead(reminder.id))).catch((err) =>
-        console.warn('Failed to mark schedule reminders as read', err),
+      Promise.all(
+        scheduleReminders.map((reminder) => markAsRead(reminder.id))
+      ).catch((err) =>
+        console.warn("Failed to mark schedule reminders as read", err)
       );
     }
   }, [markAsRead, router, scheduleReminders]);
@@ -227,7 +258,9 @@ export function DashboardScreen() {
     <ScrollView
       style={styles.container}
       contentContainerStyle={styles.contentContainer}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+      }
     >
       <LinearGradient
         colors={[colors.secondaryPastel, colors.accentTint]}
@@ -236,7 +269,7 @@ export function DashboardScreen() {
         style={styles.headerGradient}
       >
         <Text style={styles.greeting}>Halo,</Text>
-        <Text style={styles.userName}>{user?.name ?? 'Ibu Hebat'}</Text>
+        <Text style={styles.userName}>{user?.name ?? "Ibu Hebat"}</Text>
         <Text style={styles.description}>
           Berikut adalah status gizi dan kebutuhan harian Anda hari ini.
         </Text>
@@ -246,7 +279,7 @@ export function DashboardScreen() {
         <Animated.View style={[styles.reminderBanner, animatedEntranceStyle]}>
           <View style={styles.reminderTextContainer}>
             <Text style={styles.reminderTitle}>
-              {String(latestScheduleReminder.title ?? 'Pengingat Jadwal')}
+              {String(latestScheduleReminder.title ?? "Pengingat Jadwal")}
             </Text>
             {latestScheduleReminder.message ? (
               <Text style={styles.reminderMessage}>
@@ -255,7 +288,8 @@ export function DashboardScreen() {
             ) : null}
             {additionalScheduleReminderCount > 0 ? (
               <Text style={styles.reminderMeta}>
-                +{additionalScheduleReminderCount} pengingat jadwal lainnya belum dibaca
+                +{additionalScheduleReminderCount} pengingat jadwal lainnya
+                belum dibaca
               </Text>
             ) : null}
           </View>
@@ -268,18 +302,22 @@ export function DashboardScreen() {
       ) : null}
 
       <Animated.View style={[statusCardStyle, animatedEntranceStyle]}>
-        <Text style={statusVariant.badge}>{(inference?.status ?? 'Belum ada data').toUpperCase()}</Text>
+        <Text style={statusVariant.badge}>
+          {(inference?.status ?? "Belum ada data").toUpperCase()}
+        </Text>
         {inference?.recommendation ? (
           <Text style={statusVariant.text}>{inference.recommendation}</Text>
         ) : (
           <Text style={statusVariant.text}>
             {loading
-              ? 'Memuat status gizi...'
-              : 'Status gizi terbaru akan muncul di sini setelah pemeriksaan.'}
+              ? "Memuat status gizi..."
+              : "Status gizi terbaru akan muncul di sini setelah pemeriksaan."}
           </Text>
         )}
         {inference?.updatedAt ? (
-          <Text style={styles.statusUpdatedAt}>Pembaruan terakhir: {inference.updatedAt}</Text>
+          <Text style={styles.statusUpdatedAt}>
+            Pembaruan terakhir: {inference.updatedAt}
+          </Text>
         ) : null}
       </Animated.View>
 
@@ -297,7 +335,9 @@ export function DashboardScreen() {
                 <Feather name="zap" size={20} color={colors.primary} />
               </View>
               <View>
-                <Text style={styles.nutrientValue}>{inference?.energy ?? 0}</Text>
+                <Text style={styles.nutrientValue}>
+                  {inference?.energy ?? 0}
+                </Text>
                 <Text style={styles.nutrientUnit}>kkal</Text>
               </View>
             </View>
@@ -314,7 +354,9 @@ export function DashboardScreen() {
                 <Feather name="feather" size={20} color={colors.secondary} />
               </View>
               <View>
-                <Text style={styles.nutrientValue}>{inference?.protein ?? 0}</Text>
+                <Text style={styles.nutrientValue}>
+                  {inference?.protein ?? 0}
+                </Text>
                 <Text style={styles.nutrientUnit}>gram</Text>
               </View>
             </View>
@@ -331,7 +373,9 @@ export function DashboardScreen() {
                 <Feather name="droplet" size={20} color={colors.primary} />
               </View>
               <View>
-                <Text style={styles.nutrientValue}>{inference?.fluid ?? 0}</Text>
+                <Text style={styles.nutrientValue}>
+                  {inference?.fluid ?? 0}
+                </Text>
                 <Text style={styles.nutrientUnit}>ml</Text>
               </View>
             </View>
@@ -342,7 +386,11 @@ export function DashboardScreen() {
       {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
       <View style={styles.signOutContainer}>
-        <AppButton label="Keluar" onPress={logout} style={styles.logoutButton} />
+        <AppButton
+          label="Keluar"
+          onPress={logout}
+          style={styles.logoutButton}
+        />
       </View>
     </ScrollView>
   );
@@ -382,7 +430,7 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     padding: spacing.xl,
     marginBottom: spacing.xl,
-    flexDirection: 'column',
+    flexDirection: "column",
     gap: spacing.md,
     shadowColor: colors.shadow,
     shadowOpacity: 0.16,
@@ -408,7 +456,7 @@ const styles = StyleSheet.create({
   } as TextStyle,
   reminderButton: {
     width: undefined,
-    alignSelf: 'flex-start',
+    alignSelf: "flex-start",
     paddingHorizontal: spacing.lg,
     shadowOpacity: 0.18,
     shadowRadius: 10,
@@ -423,7 +471,7 @@ const styles = StyleSheet.create({
     elevation: 0,
   } as ViewStyle,
   statusBadge: {
-    alignSelf: 'flex-start',
+    alignSelf: "flex-start",
     borderRadius: 999,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.xs,
@@ -433,7 +481,7 @@ const styles = StyleSheet.create({
   statusText: {
     marginTop: spacing.md,
     ...typography.body,
-    fontWeight: '600',
+    fontWeight: "600",
     color: colors.textPrimary,
   } as TextStyle,
   statusUpdatedAt: {
@@ -459,8 +507,8 @@ const styles = StyleSheet.create({
     paddingTop: 0,
   } as ViewStyle,
   nutrientDetails: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: spacing.md,
   } as ViewStyle,
   nutrientValue: {
@@ -476,8 +524,8 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   } as ViewStyle,
   energyIcon: {
     backgroundColor: colors.primaryPastel,
