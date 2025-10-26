@@ -36,7 +36,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const persistAuth = useCallback(async (nextToken: string, nextUser: ApiUser) => {
     await Promise.all([
-      setItemAsync(TOKEN_KEY, nextToken),
+      setItemAsync(TOKEN_KEY, String(nextToken)),
       setItemAsync(USER_KEY, JSON.stringify(nextUser)),
     ]);
     setAuthToken(nextToken);
