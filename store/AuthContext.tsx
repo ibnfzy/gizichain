@@ -1,16 +1,25 @@
-import { createContext, ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
-import { deleteItemAsync, getItemAsync, setItemAsync } from './secureStorage';
 import {
   ApiUser,
   AuthPayload,
   LoginPayload,
-  RegisterPayload,
   loginRequest,
+  RegisterPayload,
   registerRequest,
   setAuthToken,
-} from '@/services/api';
+} from "@/services/api";
+import {
+  createContext,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+import { deleteItemAsync, getItemAsync, setItemAsync } from "./secureStorage";
 
-type ApiUserWithLegacyMotherId = ApiUser & { mother_id?: string | number | null };
+type ApiUserWithLegacyMotherId = ApiUser & {
+  mother_id?: string | number | null;
+};
 
 interface AuthContextState {
   user: ApiUser | null;
@@ -23,10 +32,12 @@ interface AuthContextState {
   setUser: (user: ApiUser | null) => void;
 }
 
-const TOKEN_KEY = 'gizichain_token';
-const USER_KEY = 'gizichain_user';
+const TOKEN_KEY = "gizichain_token";
+const USER_KEY = "gizichain_user";
 
-export const AuthContext = createContext<AuthContextState | undefined>(undefined);
+export const AuthContext = createContext<AuthContextState | undefined>(
+  undefined
+);
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -75,17 +86,20 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setUserState(normalizeUser(nextUser));
   }, []);
 
-  const persistAuth = useCallback(async (nextToken: string, nextUser: ApiUser) => {
-    const normalizedUser = normalizeUser(nextUser);
+  const persistAuth = useCallback(
+    async (nextToken: string, nextUser: ApiUser) => {
+      const normalizedUser = normalizeUser(nextUser);
 
-    await Promise.all([
-      setItemAsync(TOKEN_KEY, String(nextToken)),
-      setItemAsync(USER_KEY, JSON.stringify(normalizedUser)),
-    ]);
-    setAuthToken(nextToken);
-    setToken(nextToken);
-    setUserState(normalizedUser);
-  }, []);
+      await Promise.all([
+        setItemAsync(TOKEN_KEY, String(nextToken)),
+        setItemAsync(USER_KEY, JSON.stringify(normalizedUser)),
+      ]);
+      setAuthToken(nextToken);
+      setToken(nextToken);
+      setUserState(normalizedUser);
+    },
+    []
+  );
 
   const restoreAuth = useCallback(async () => {
     try {
@@ -104,7 +118,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         setUser(parsedUser);
       }
     } catch (error) {
-      console.warn('Failed to restore authentication state', error);
+      console.warn("Failed to restore authentication state", error);
       await Promise.all([
         deleteItemAsync(TOKEN_KEY),
         deleteItemAsync(USER_KEY),
@@ -127,23 +141,21 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       await persistAuth(response.token, response.user);
       return response;
     },
-    [persistAuth],
+    [persistAuth]
   );
 
   const handleRegister = useCallback(
     async (payload: RegisterPayload) => {
       const response = await registerRequest(payload);
+      console.log(response);
       await persistAuth(response.token, response.user);
       return response;
     },
-    [persistAuth],
+    [persistAuth]
   );
 
   const handleLogout = useCallback(async () => {
-    await Promise.all([
-      deleteItemAsync(TOKEN_KEY),
-      deleteItemAsync(USER_KEY),
-    ]);
+    await Promise.all([deleteItemAsync(TOKEN_KEY), deleteItemAsync(USER_KEY)]);
     setAuthToken(null);
     setUser(null);
     setToken(null);
@@ -169,7 +181,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setUser,
       token,
       user,
-    ],
+    ]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
