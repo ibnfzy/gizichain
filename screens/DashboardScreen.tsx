@@ -93,7 +93,7 @@ const normalizeStatus = (status?: string) => {
 
 export function DashboardScreen() {
   const router = useRouter();
-  const { user, logout, isLoading: authLoading } = useAuth();
+  const { user, motherId, logout, isLoading: authLoading } = useAuth();
   const { scheduleReminders, markAsRead } = useNotifications();
   const [inference, setInference] = useState<InferenceData | null>(null);
   const [loading, setLoading] = useState(false);
@@ -102,7 +102,6 @@ export function DashboardScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const inferenceAnimation = useRef(new Animated.Value(0)).current;
 
-  const motherId = user?.id;
   const latestScheduleReminder = scheduleReminders[0];
   const additionalScheduleReminderCount = Math.max(
     scheduleReminders.length - 1,

@@ -10,8 +10,11 @@ import {
   setAuthToken,
 } from '@/services/api';
 
+type ApiUserWithLegacyMotherId = ApiUser & { mother_id?: string | number | null };
+
 interface AuthContextState {
   user: ApiUser | null;
+  motherId: string | number | null;
   token: string | null;
   isLoading: boolean;
   login: (payload: LoginPayload) => Promise<AuthPayload>;
@@ -29,19 +32,59 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
+const extractMotherId = (
+  user: ApiUserWithLegacyMotherId | null
+): string | number | null => {
+  if (!user) {
+    return null;
+  }
+
+  if (user.motherId !== undefined && user.motherId !== null) {
+    return user.motherId;
+  }
+
+  if (user.mother_id !== undefined && user.mother_id !== null) {
+    return user.mother_id;
+  }
+
+  return null;
+};
+
+const normalizeUser = (nextUser: ApiUser): ApiUserWithLegacyMotherId => {
+  const candidate = nextUser as ApiUserWithLegacyMotherId;
+  const motherId = extractMotherId(candidate);
+
+  return motherId === null
+    ? { ...candidate, motherId: undefined }
+    : { ...candidate, motherId };
+};
+
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [user, setUser] = useState<ApiUser | null>(null);
+  const [user, setUserState] = useState<ApiUserWithLegacyMotherId | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  const motherId = extractMotherId(user);
+
+  const setUser = useCallback((nextUser: ApiUser | null) => {
+    if (!nextUser) {
+      setUserState(null);
+      return;
+    }
+
+    setUserState(normalizeUser(nextUser));
+  }, []);
+
   const persistAuth = useCallback(async (nextToken: string, nextUser: ApiUser) => {
+    const normalizedUser = normalizeUser(nextUser);
+
     await Promise.all([
       setItemAsync(TOKEN_KEY, String(nextToken)),
-      setItemAsync(USER_KEY, JSON.stringify(nextUser)),
+      setItemAsync(USER_KEY, JSON.stringify(normalizedUser)),
     ]);
     setAuthToken(nextToken);
     setToken(nextToken);
-    setUser(nextUser);
+    setUserState(normalizedUser);
   }, []);
 
   const restoreAuth = useCallback(async () => {
@@ -57,7 +100,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       }
 
       if (storedUser) {
-        const parsedUser: ApiUser = JSON.parse(storedUser);
+        const parsedUser = JSON.parse(storedUser) as ApiUserWithLegacyMotherId;
         setUser(parsedUser);
       }
     } catch (error) {
@@ -72,7 +115,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [setUser]);
 
   useEffect(() => {
     restoreAuth();
@@ -104,11 +147,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setAuthToken(null);
     setUser(null);
     setToken(null);
-  }, []);
+  }, [setUser]);
 
   const value = useMemo(
     () => ({
       user,
+      motherId,
       token,
       isLoading,
       login: handleLogin,
@@ -116,7 +160,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       logout: handleLogout,
       setUser,
     }),
-    [handleLogin, handleLogout, handleRegister, isLoading, token, user],
+    [
+      handleLogin,
+      handleLogout,
+      handleRegister,
+      isLoading,
+      motherId,
+      setUser,
+      token,
+      user,
+    ],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

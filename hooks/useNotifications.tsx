@@ -66,8 +66,7 @@ export const NotificationsProvider = ({
   children,
   pollInterval = 12000,
 }: NotificationsProviderProps) => {
-  const { user } = useAuth();
-  const motherId = user?.id;
+  const { motherId } = useAuth();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);

@@ -4,6 +4,7 @@ export interface ApiUser {
   id: string | number;
   name: string;
   email: string;
+  motherId?: string | number | null;
 }
 
 export interface AuthPayload {
