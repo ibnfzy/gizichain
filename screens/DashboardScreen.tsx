@@ -90,6 +90,7 @@ export function DashboardScreen() {
   const [inference, setInference] = useState<InferenceData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [noInferenceAvailable, setNoInferenceAvailable] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const inferenceAnimation = useRef(new Animated.Value(0)).current;
 
@@ -162,18 +163,25 @@ export function DashboardScreen() {
   const fetchData = useCallback(async () => {
     if (!motherId) {
       setInference(null);
+      setNoInferenceAvailable(false);
       return;
     }
 
     setLoading(true);
     setError(null);
+    setNoInferenceAvailable(false);
     try {
       const data = await fetchLatestInference(motherId);
-      console.log(data);
-      setInference(data);
+      if (!data) {
+        setInference(null);
+        setNoInferenceAvailable(true);
+      } else {
+        setInference(data);
+      }
     } catch (err: unknown) {
       console.warn("Failed to fetch inference data", err);
       setError("Tidak dapat memuat data inferensi. Coba lagi nanti.");
+      setNoInferenceAvailable(false);
     } finally {
       setLoading(false);
     }
@@ -194,11 +202,18 @@ export function DashboardScreen() {
     setRefreshing(true);
     try {
       const data = await fetchLatestInference(motherId);
-      setInference(data);
+      if (!data) {
+        setInference(null);
+        setNoInferenceAvailable(true);
+      } else {
+        setInference(data);
+        setNoInferenceAvailable(false);
+      }
       setError(null);
     } catch (err: unknown) {
       console.warn("Failed to refresh inference data", err);
       setError("Tidak dapat memuat data inferensi. Coba lagi nanti.");
+      setNoInferenceAvailable(false);
     } finally {
       setRefreshing(false);
     }
@@ -305,7 +320,11 @@ export function DashboardScreen() {
         <Text style={statusVariant.badge}>
           {(inference?.status ?? "Belum ada data").toUpperCase()}
         </Text>
-        {inference?.recommendation ? (
+        {noInferenceAvailable ? (
+          <Text style={statusVariant.text}>
+            Belum ada hasil inferensi untuk ibu ini.
+          </Text>
+        ) : inference?.recommendation ? (
           <Text style={statusVariant.text}>{inference.recommendation}</Text>
         ) : (
           <Text style={statusVariant.text}>
