@@ -42,15 +42,15 @@ const styles = StyleSheet.create({
     width: '100%',
     borderRadius: radius.lg,
     padding: 20,
-  },
+  } as ViewStyle,
   title: {
     marginBottom: 12,
     color: colors.textPrimary,
     ...typography.subtitle,
-  },
+  } as TextStyle,
   content: {
     width: '100%',
-  },
+  } as ViewStyle,
 });
 
 const INFO_CARD_VARIANTS: Record<
@@ -68,7 +68,7 @@ const INFO_CARD_VARIANTS: Record<
       borderColor: colors.primaryPastel,
       shadowOpacity: 0,
       elevation: 0,
-    },
+    } as ViewStyle,
   },
   elevated: {
     container: {
@@ -78,7 +78,7 @@ const INFO_CARD_VARIANTS: Record<
       shadowRadius: 8,
       shadowOffset: { width: 0, height: 4 },
       elevation: 3,
-    },
+    } as ViewStyle,
   },
   info: {
     container: {
@@ -90,15 +90,15 @@ const INFO_CARD_VARIANTS: Record<
       shadowRadius: 6,
       shadowOffset: { width: 0, height: 3 },
       elevation: 2,
-    },
+    } as ViewStyle,
     title: {
       color: colors.primary,
-    },
+    } as TextStyle,
     content: {
       borderTopWidth: StyleSheet.hairlineWidth,
       borderColor: colors.primaryPastel,
       paddingTop: 12,
-    },
+    } as ViewStyle,
   },
   nutrient: {
     container: {
@@ -109,16 +109,16 @@ const INFO_CARD_VARIANTS: Record<
       paddingHorizontal: 20,
       shadowOpacity: 0,
       elevation: 0,
-    },
+    } as ViewStyle,
     title: {
       color: colors.textMuted,
-      ...typography.subtitle,
+      ...(typography.subtitle as TextStyle),
       fontSize: 16,
       fontWeight: '600',
-    },
+    } as TextStyle,
     content: {
       marginTop: 10,
-    },
+    } as ViewStyle,
   },
   pastel: {
     container: {
@@ -132,14 +132,14 @@ const INFO_CARD_VARIANTS: Record<
       elevation: 6,
       paddingVertical: 24,
       paddingHorizontal: 24,
-    },
+    } as ViewStyle,
     title: {
       color: colors.pastelTitle,
-      ...typography.heading2,
-    },
+      ...(typography.heading2 as TextStyle),
+    } as TextStyle,
     content: {
       marginTop: 12,
       gap: spacing.lg,
-    },
+    } as ViewStyle,
   },
 };

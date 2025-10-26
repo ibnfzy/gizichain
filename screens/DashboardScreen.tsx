@@ -22,47 +22,47 @@ const STATUS_VARIANTS = StyleSheet.create({
   healthyContainer: {
     borderColor: colors.primaryPastel,
     backgroundColor: colors.mintPastel,
-  },
+  } as ViewStyle,
   healthyBadge: {
     backgroundColor: colors.primaryPastel,
     color: colors.primary,
-  },
+  } as TextStyle,
   healthyText: {
     color: colors.primary,
-  },
+  } as TextStyle,
   warningContainer: {
     borderColor: colors.secondaryPastel,
     backgroundColor: colors.accentTint,
-  },
+  } as ViewStyle,
   warningBadge: {
     backgroundColor: colors.secondaryPastel,
     color: colors.secondary,
-  },
+  } as TextStyle,
   warningText: {
     color: colors.secondary,
-  },
+  } as TextStyle,
   criticalContainer: {
     borderColor: colors.dangerPastel,
     backgroundColor: colors.dangerPastel,
-  },
+  } as ViewStyle,
   criticalBadge: {
     backgroundColor: colors.dangerTint,
     color: colors.danger,
-  },
+  } as TextStyle,
   criticalText: {
     color: colors.danger,
-  },
+  } as TextStyle,
   unknownContainer: {
     borderColor: colors.lavenderPastel,
     backgroundColor: colors.lavenderPastel,
-  },
+  } as ViewStyle,
   unknownBadge: {
     backgroundColor: colors.primaryPastel,
     color: colors.textMuted,
-  },
+  } as TextStyle,
   unknownText: {
     color: colors.textMuted,
-  },
+  } as TextStyle,
 });
 
 const normalizeStatus = (status?: string) => {
@@ -352,31 +352,31 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
-  },
+  } as ViewStyle,
   contentContainer: {
     paddingTop: spacing.xxxxl,
     paddingBottom: spacing.xxxxxxl,
     paddingHorizontal: spacing.lg,
-  },
+  } as ViewStyle,
   greeting: {
     ...typography.subtitle,
     color: colors.textMuted,
-  },
+  } as TextStyle,
   userName: {
     marginTop: spacing.xs,
     ...typography.heading1,
     color: colors.primary,
-  },
+  } as TextStyle,
   description: {
     marginTop: spacing.sm,
     ...typography.body,
     color: colors.textMuted,
-  },
+  } as TextStyle,
   headerGradient: {
     borderRadius: 28,
     padding: spacing.xl,
     marginBottom: spacing.xxl,
-  },
+  } as ViewStyle,
   reminderBanner: {
     backgroundColor: colors.primaryPastel,
     borderRadius: 24,
@@ -389,23 +389,23 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 6 },
     elevation: 6,
-  },
+  } as ViewStyle,
   reminderTextContainer: {
     gap: spacing.xs,
-  },
+  } as ViewStyle,
   reminderTitle: {
     ...typography.subtitle,
     color: colors.primary,
-  },
+  } as TextStyle,
   reminderMessage: {
     ...typography.body,
     color: colors.textPrimary,
     lineHeight: 22,
-  },
+  } as TextStyle,
   reminderMeta: {
     ...typography.caption,
     color: colors.textMuted,
-  },
+  } as TextStyle,
   reminderButton: {
     width: undefined,
     alignSelf: 'flex-start',
@@ -413,7 +413,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.18,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },
-  },
+  } as ViewStyle,
   statusCard: {
     borderWidth: 1,
     borderRadius: 24,
@@ -421,7 +421,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xl,
     shadowOpacity: 0,
     elevation: 0,
-  },
+  } as ViewStyle,
   statusBadge: {
     alignSelf: 'flex-start',
     borderRadius: 999,
@@ -429,74 +429,74 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.xs,
     ...typography.overline,
     fontSize: 13,
-  },
+  } as TextStyle,
   statusText: {
     marginTop: spacing.md,
     ...typography.body,
     fontWeight: '600',
     color: colors.textPrimary,
-  },
+  } as TextStyle,
   statusUpdatedAt: {
     marginTop: spacing.sm,
     ...typography.caption,
     color: colors.textMuted,
-  },
+  } as TextStyle,
   dailyNeedsSection: {
     gap: spacing.lg,
     marginBottom: spacing.xxl,
-  },
+  } as ViewStyle,
   dailyNeedsHeading: {
     ...typography.heading2,
     color: colors.textPrimary,
-  },
+  } as TextStyle,
   dailyNeedsList: {
     gap: spacing.lg,
-  },
+  } as ViewStyle,
   nutrientCard: {
     borderRadius: 24,
-  },
+  } as ViewStyle,
   nutrientContent: {
     paddingTop: 0,
-  },
+  } as ViewStyle,
   nutrientDetails: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
-  },
+  } as ViewStyle,
   nutrientValue: {
     ...typography.heading2,
     fontSize: 22,
     color: colors.textPrimary,
-  },
+  } as TextStyle,
   nutrientUnit: {
     ...typography.caption,
     color: colors.textMuted,
-  },
+  } as TextStyle,
   iconBubble: {
     width: 44,
     height: 44,
     borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
-  },
+  } as ViewStyle,
   energyIcon: {
     backgroundColor: colors.primaryPastel,
-  },
+  } as ViewStyle,
   proteinIcon: {
     backgroundColor: colors.secondaryPastel,
-  },
+  } as ViewStyle,
   fluidIcon: {
     backgroundColor: colors.skyPastel,
-  },
+  } as ViewStyle,
   errorText: {
     marginTop: spacing.xl,
     ...typography.caption,
     color: colors.danger,
-  },
+  } as TextStyle,
   signOutContainer: {
     marginTop: spacing.xxxl,
-  },
+  } as ViewStyle,
   logoutButton: {
     backgroundColor: colors.danger,
-  },
+  } as ViewStyle,
 });

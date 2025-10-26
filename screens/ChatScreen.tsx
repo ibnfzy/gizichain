@@ -1,4 +1,4 @@
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { FlatList, StyleSheet, Text, View, type TextStyle, type ViewStyle } from 'react-native';
 
 import { AppButton, ChatBubble, InfoCard } from '@/components/ui';
 import { colors, globalStyles, spacing, typography } from '@/styles';
@@ -79,29 +79,29 @@ const styles = StyleSheet.create({
     paddingTop: spacing.xl,
     paddingBottom: spacing.xxxl,
     gap: spacing.md,
-  },
+  } as ViewStyle,
   header: {
     gap: spacing.sm,
-  },
+  } as ViewStyle,
   title: {
     ...typography.heading2,
     color: colors.textPrimary,
-  },
+  } as TextStyle,
   subtitle: {
     ...typography.body,
     color: colors.textMuted,
     lineHeight: 22,
     marginTop: spacing.xs,
-  },
+  } as TextStyle,
   tipCard: {
     marginTop: spacing.lg,
-  },
+  } as ViewStyle,
   tipText: {
     ...typography.body,
     color: colors.textPrimary,
     lineHeight: 22,
-  },
+  } as TextStyle,
   askButton: {
     marginTop: spacing.lg,
-  },
+  } as ViewStyle,
 });

@@ -92,14 +92,14 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 4 },
     elevation: 4,
-  },
+  } as ViewStyle,
   pressed: {
     opacity: 0.92,
-  },
+  } as ViewStyle,
   label: {
     fontSize: 16,
     fontWeight: '700',
-  },
+  } as TextStyle,
 });
 
 const VARIANT_MAP: Record<

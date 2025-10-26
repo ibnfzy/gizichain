@@ -1,4 +1,4 @@
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View, type TextStyle, type ViewStyle } from 'react-native';
 
 import { AppButton, InfoCard } from '@/components/ui';
 import { colors, globalStyles, spacing, typography } from '@/styles';
@@ -104,27 +104,27 @@ const styles = StyleSheet.create({
     paddingTop: spacing.xl,
     paddingBottom: spacing.xxxl,
     gap: spacing.xl,
-  },
+  } as ViewStyle,
   title: {
     ...typography.heading2,
     color: colors.textPrimary,
-  },
+  } as TextStyle,
   subtitle: {
     ...typography.body,
     color: colors.textMuted,
     lineHeight: 22,
-  },
+  } as TextStyle,
   infoCard: {
     borderRadius: spacing.lg,
-  },
+  } as ViewStyle,
   infoText: {
     ...typography.body,
     color: colors.textPrimary,
-  },
+  } as TextStyle,
   horizontalList: {
     paddingRight: spacing.xl,
     gap: spacing.lg,
-  },
+  } as ViewStyle,
   planCard: {
     width: 240,
     borderRadius: spacing.lg,
@@ -135,33 +135,33 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 6 },
     elevation: 6,
-  },
+  } as ViewStyle,
   planDay: {
     ...typography.subtitle,
     color: colors.textPrimary,
-  },
+  } as TextStyle,
   planFocus: {
     marginTop: spacing.xs,
     ...typography.body,
     color: colors.textPrimary,
     fontWeight: '600',
-  },
+  } as TextStyle,
   planHighlight: {
     marginTop: spacing.sm,
     ...typography.caption,
     color: colors.textMuted,
-  },
+  } as TextStyle,
   mealList: {
     marginTop: spacing.md,
     gap: spacing.xs,
-  },
+  } as ViewStyle,
   mealItem: {
     ...typography.caption,
     color: colors.textPrimary,
     lineHeight: 20,
-  },
+  } as TextStyle,
   downloadButton: {
     alignSelf: 'center',
     width: '90%',
-  },
+  } as ViewStyle,
 });

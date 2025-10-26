@@ -1,5 +1,14 @@
 import { useCallback, useMemo } from 'react';
-import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
+import {
+  Pressable,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+  type TextStyle,
+  type ViewStyle,
+} from 'react-native';
 
 import { AppButton, InfoCard } from '@/components/ui';
 import { useNotifications } from '@/hooks/useNotifications';
@@ -203,46 +212,46 @@ const styles = StyleSheet.create({
     paddingTop: spacing.xl,
     paddingBottom: spacing.xxxl,
     gap: spacing.xl,
-  },
+  } as ViewStyle,
   title: {
     ...typography.heading2,
     color: colors.textPrimary,
-  },
+  } as TextStyle,
   subtitle: {
     ...typography.body,
     color: colors.textMuted,
     lineHeight: 22,
-  },
+  } as TextStyle,
   summaryCard: {
     borderRadius: spacing.lg,
-  },
+  } as ViewStyle,
   summaryText: {
     ...typography.body,
     color: colors.textPrimary,
-  },
+  } as TextStyle,
   errorText: {
     ...typography.body,
     color: colors.danger,
-  },
+  } as TextStyle,
   listContainer: {
     gap: spacing.md,
-  },
+  } as ViewStyle,
   emptyState: {
     borderRadius: spacing.lg,
     padding: spacing.xl,
     backgroundColor: colors.card,
     alignItems: 'flex-start',
     gap: spacing.sm,
-  },
+  } as ViewStyle,
   emptyTitle: {
     ...typography.subtitle,
     color: colors.textPrimary,
-  },
+  } as TextStyle,
   emptySubtitle: {
     ...typography.body,
     color: colors.textMuted,
     lineHeight: 22,
-  },
+  } as TextStyle,
   notificationCard: {
     flexDirection: 'row',
     borderRadius: spacing.lg,
@@ -252,29 +261,29 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },
     elevation: 4,
-  },
+  } as ViewStyle,
   accentBar: {
     width: 4,
     borderRadius: spacing.sm,
     marginRight: spacing.md,
-  },
+  } as ViewStyle,
   notificationContent: {
     flex: 1,
     gap: spacing.xs,
-  },
+  } as ViewStyle,
   notificationTitle: {
     ...typography.subtitle,
     color: colors.textPrimary,
-  },
+  } as TextStyle,
   notificationMessage: {
     ...typography.body,
     color: colors.textPrimary,
     lineHeight: 22,
-  },
+  } as TextStyle,
   notificationTime: {
     ...typography.caption,
     color: colors.textMuted,
-  },
+  } as TextStyle,
   markReadButton: {
     alignSelf: 'flex-start',
     marginTop: spacing.sm,
@@ -282,10 +291,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.sm,
     borderRadius: spacing.sm,
     backgroundColor: colors.card,
-  },
+  } as ViewStyle,
   markReadText: {
     ...typography.caption,
     fontWeight: '600',
     color: colors.primary,
-  },
+  } as TextStyle,
 });
