@@ -419,4 +419,256 @@ export const fetchLatestInference = async (
   };
 };
 
+const parseIdentifier = (value: unknown): string | number | null => {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value;
+  }
+
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+
+    if (trimmed.length === 0) {
+      return null;
+    }
+
+    const numeric = Number(trimmed);
+
+    return Number.isFinite(numeric) ? numeric : trimmed;
+  }
+
+  return null;
+};
+
+const parseOptionalString = (value: unknown): string | undefined => {
+  return typeof value === "string" && value.trim().length > 0
+    ? value
+    : undefined;
+};
+
+const parseNullableString = (value: unknown): string | null | undefined => {
+  if (value === null) {
+    return null;
+  }
+
+  return parseOptionalString(value);
+};
+
+export interface Consultation {
+  id: string | number;
+  motherId?: string | number | null;
+  pakarId?: string | number | null;
+  status?: string;
+  notes?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+  mother?: unknown;
+  pakar?: unknown;
+}
+
+const parseConsultation = (value: unknown): Consultation | null => {
+  if (!isRecord(value)) {
+    return null;
+  }
+
+  const id = parseIdentifier(value.id);
+
+  if (id === null) {
+    return null;
+  }
+
+  const motherId = parseIdentifier(value.mother_id ?? value.motherId);
+  const pakarId = parseIdentifier(value.pakar_id ?? value.pakarId);
+  const status = parseOptionalString(value.status);
+  const notes = parseNullableString(value.notes);
+  const createdAt = parseOptionalString(value.created_at ?? value.createdAt);
+  const updatedAt = parseOptionalString(value.updated_at ?? value.updatedAt);
+
+  return {
+    id,
+    motherId: motherId ?? null,
+    pakarId: pakarId ?? null,
+    status,
+    notes,
+    createdAt,
+    updatedAt,
+    mother: value.mother,
+    pakar: value.pakar,
+  };
+};
+
+const normalizeConsultationList = (value: unknown): Consultation[] => {
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => parseConsultation(item))
+      .filter((item): item is Consultation => Boolean(item));
+  }
+
+  const single = parseConsultation(value);
+
+  return single ? [single] : [];
+};
+
+export interface ConsultationQueryOptions {
+  motherId?: string | number;
+  pakarId?: string | number;
+  status?: string;
+}
+
+const sortConsultationsByDateDesc = (a: Consultation, b: Consultation) => {
+  const toTime = (input?: string) => {
+    if (!input) {
+      return 0;
+    }
+
+    const time = new Date(input).getTime();
+
+    return Number.isFinite(time) ? time : 0;
+  };
+
+  const aTime = toTime(a.updatedAt ?? a.createdAt);
+  const bTime = toTime(b.updatedAt ?? b.createdAt);
+
+  return bTime - aTime;
+};
+
+export const fetchLatestConsultation = async (
+  options: ConsultationQueryOptions = {}
+): Promise<Consultation | null> => {
+  const params: Record<string, string | number> = {};
+
+  if (options.motherId !== undefined) {
+    params.mother_id = options.motherId;
+  }
+
+  if (options.pakarId !== undefined) {
+    params.pakar_id = options.pakarId;
+  }
+
+  if (options.status !== undefined) {
+    params.status = options.status;
+  }
+
+  try {
+    const { data } = await api.get<ApiResponse<unknown> | ApiErrorResponse>(
+      "/api/consultations",
+      {
+        params,
+      }
+    );
+
+    if (!data.status) {
+      throw createApiError(data as ApiErrorResponse);
+    }
+
+    const consultations = normalizeConsultationList((data as ApiResponse<unknown>).data);
+
+    if (consultations.length === 0) {
+      return null;
+    }
+
+    consultations.sort(sortConsultationsByDateDesc);
+
+    return consultations[0] ?? null;
+  } catch (error) {
+    const normalizedError = normalizeApiError(error);
+
+    if (/not found/i.test(normalizedError.message)) {
+      return null;
+    }
+
+    throw normalizedError;
+  }
+};
+
+export interface ConsultationMessage {
+  id: string | number;
+  sender: string;
+  text: string;
+  createdAt?: string;
+  humanize?: string;
+}
+
+const parseConsultationMessage = (value: unknown): ConsultationMessage | null => {
+  if (!isRecord(value)) {
+    return null;
+  }
+
+  const id = parseIdentifier(value.id);
+
+  if (id === null) {
+    return null;
+  }
+
+  const textValue = typeof value.text === "string" ? value.text : "";
+  const sender = typeof value.sender === "string" ? value.sender : "system";
+  const createdAt = parseOptionalString(value.created_at ?? value.createdAt);
+  const humanize = parseOptionalString(value.humanize);
+
+  return {
+    id,
+    sender,
+    text: textValue,
+    createdAt,
+    humanize,
+  };
+};
+
+const normalizeConsultationMessages = (value: unknown): ConsultationMessage[] => {
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => parseConsultationMessage(item))
+      .filter((item): item is ConsultationMessage => Boolean(item));
+  }
+
+  const single = parseConsultationMessage(value);
+
+  return single ? [single] : [];
+};
+
+export const fetchConsultationMessages = async (
+  consultationId: string | number
+): Promise<ConsultationMessage[]> => {
+  const { data } = await api.get<ApiResponse<unknown> | ApiErrorResponse>(
+    `/api/consultations/${consultationId}/messages`
+  );
+
+  if (!data.status) {
+    throw createApiError(data as ApiErrorResponse);
+  }
+
+  return normalizeConsultationMessages((data as ApiResponse<unknown>).data);
+};
+
+export interface SendConsultationMessagePayload {
+  consultationId: string | number;
+  text: string;
+}
+
+export const sendConsultationMessage = async ({
+  consultationId,
+  text,
+}: SendConsultationMessagePayload): Promise<ConsultationMessage> => {
+  const { data } = await api.post<ApiResponse<unknown> | ApiErrorResponse>(
+    "/api/messages",
+    {
+      consultation_id: consultationId,
+      text,
+    }
+  );
+
+  if (!data.status) {
+    throw createApiError(data as ApiErrorResponse);
+  }
+
+  const message = parseConsultationMessage((data as ApiResponse<unknown>).data);
+
+  if (!message) {
+    throw new ApiRequestError("Invalid message response from server", {
+      payload: (data as ApiResponse<unknown>).data,
+    });
+  }
+
+  return message;
+};
+
 export default api;
