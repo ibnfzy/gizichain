@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { isAxiosError } from "axios";
 
 export interface ApiUser {
   id: string | number;
@@ -23,6 +23,126 @@ export interface ApiResponse<T> {
   message: string;
   data: T;
 }
+
+export type ApiFieldErrors = Record<string, string>;
+
+export interface ApiErrorResponse<T = unknown> {
+  status: boolean;
+  message?: unknown;
+  data?: T;
+  [key: string]: unknown;
+}
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null;
+
+const toMessage = (value: unknown): string | null => {
+  if (typeof value === "string" && value.trim().length > 0) {
+    return value;
+  }
+
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      if (typeof item === "string" && item.trim().length > 0) {
+        return item;
+      }
+    }
+  }
+
+  return null;
+};
+
+const extractFieldErrors = (data: unknown): ApiFieldErrors | undefined => {
+  if (!isRecord(data)) {
+    return undefined;
+  }
+
+  const candidate = isRecord(data.errors) ? data.errors : data;
+
+  if (!isRecord(candidate)) {
+    return undefined;
+  }
+
+  const fieldErrors: ApiFieldErrors = {};
+
+  for (const [field, message] of Object.entries(candidate)) {
+    const resolvedMessage = toMessage(message);
+
+    if (resolvedMessage) {
+      fieldErrors[field] = resolvedMessage;
+    }
+  }
+
+  return Object.keys(fieldErrors).length > 0 ? fieldErrors : undefined;
+};
+
+const resolveErrorMessage = (message: unknown): string => {
+  const resolved = toMessage(message);
+
+  if (resolved) {
+    return resolved;
+  }
+
+  return "Terjadi kesalahan. Silakan coba lagi.";
+};
+
+export class ApiRequestError extends Error {
+  status?: boolean;
+  fieldErrors?: ApiFieldErrors;
+  payload?: unknown;
+
+  constructor(
+    message: string,
+    options: { status?: boolean; fieldErrors?: ApiFieldErrors; payload?: unknown } = {}
+  ) {
+    super(message);
+    this.name = "ApiRequestError";
+    this.status = options.status;
+    this.fieldErrors = options.fieldErrors;
+    this.payload = options.payload;
+  }
+}
+
+const createApiError = (response: ApiErrorResponse): ApiRequestError => {
+  return new ApiRequestError(resolveErrorMessage(response.message), {
+    status: response.status,
+    fieldErrors: extractFieldErrors(response.data),
+    payload: response.data,
+  });
+};
+
+export const normalizeApiError = (error: unknown): ApiRequestError => {
+  if (error instanceof ApiRequestError) {
+    return error;
+  }
+
+  if (
+    isRecord(error) &&
+    "status" in error &&
+    error.status === false &&
+    ("message" in error || "data" in error)
+  ) {
+    return createApiError(error as ApiErrorResponse);
+  }
+
+  if (isAxiosError(error)) {
+    const responseData = error.response?.data;
+
+    if (isRecord(responseData)) {
+      return createApiError(responseData as ApiErrorResponse);
+    }
+
+    if (error.message) {
+      return new ApiRequestError(error.message);
+    }
+  }
+
+  if (error instanceof Error && error.message) {
+    return new ApiRequestError(error.message);
+  }
+
+  return new ApiRequestError("Terjadi kesalahan. Silakan coba lagi.");
+};
 
 export interface LoginPayload {
   email: string;
@@ -126,6 +246,10 @@ export const loginRequest = async (
   payload: LoginPayload
 ): Promise<AuthPayload> => {
   const { data } = await api.post<AuthResponse>("/api/auth/login", payload);
+  if (!data.status) {
+    throw createApiError(data);
+  }
+
   return data.data;
 };
 
@@ -133,6 +257,10 @@ export const registerRequest = async (
   payload: RegisterPayload
 ): Promise<AuthPayload> => {
   const { data } = await api.post<AuthResponse>("/api/auth/register", payload);
+  if (!data.status) {
+    throw createApiError(data);
+  }
+
   return data.data;
 };
 
