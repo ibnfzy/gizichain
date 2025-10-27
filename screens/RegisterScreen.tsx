@@ -261,7 +261,7 @@ export function RegisterScreen() {
         },
         ibu: ibuPayload,
       });
-      router.replace('/(tabs)/dashboard');
+      router.replace('/login');
     } catch (err: unknown) {
       const apiError = normalizeApiError(err);
 
