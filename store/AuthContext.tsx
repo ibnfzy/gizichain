@@ -144,14 +144,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     [persistAuth]
   );
 
-  const handleRegister = useCallback(
-    async (payload: RegisterPayload) => {
-      const response = await registerRequest(payload);
-      await persistAuth(response.token, response.user);
-      return response;
-    },
-    [persistAuth]
-  );
+  const handleRegister = useCallback(async (payload: RegisterPayload) => {
+    const response = await registerRequest(payload);
+    return response;
+  }, []);
 
   const handleLogout = useCallback(async () => {
     await Promise.all([deleteItemAsync(TOKEN_KEY), deleteItemAsync(USER_KEY)]);
