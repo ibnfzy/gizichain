@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState } from "react";
 import {
   Modal,
   Pressable,
@@ -9,10 +9,10 @@ import {
   TextStyle,
   View,
   ViewStyle,
-} from 'react-native';
+} from "react-native";
 
-import colors from '@/styles/colors';
-import radius from '@/styles/radius';
+import colors from "@/styles/colors";
+import radius from "@/styles/radius";
 
 export interface AppSelectOption {
   label: string;
@@ -42,7 +42,7 @@ export function AppSelect({
 
   const selectedOption = useMemo(
     () => options.find((option) => option.value === value),
-    [options, value],
+    [options, value]
   );
 
   const hasError = Boolean(errorMessage);
@@ -76,7 +76,7 @@ export function AppSelect({
             !selectedOption ? styles.placeholderText : undefined,
           ]}
         >
-          {selectedOption ? selectedOption.label : placeholder ?? 'Pilih opsi'}
+          {selectedOption ? selectedOption.label : placeholder ?? "Pilih opsi"}
         </Text>
       </Pressable>
       {errorMessage ? (
@@ -131,17 +131,17 @@ export function AppSelect({
 
 const styles = StyleSheet.create({
   container: {
-    width: '100%',
+    width: "100%",
   } as ViewStyle,
   input: {
-    width: '100%',
+    width: "100%",
     borderRadius: radius.lg,
     borderWidth: StyleSheet.hairlineWidth * 1.5,
     borderColor: colors.border,
     backgroundColor: colors.card,
     paddingHorizontal: 16,
     paddingVertical: 12,
-    justifyContent: 'center',
+    justifyContent: "center",
     shadowColor: colors.shadow,
     shadowOpacity: 0.12,
     shadowRadius: 6,
@@ -168,22 +168,22 @@ const styles = StyleSheet.create({
   } as TextStyle,
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.35)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "rgba(0,0,0,0.35)",
+    justifyContent: "center",
+    alignItems: "center",
     paddingHorizontal: 24,
   } as ViewStyle,
   modalCard: {
-    width: '100%',
-    maxHeight: '70%',
-    borderRadius: radius.xl,
+    width: "100%",
+    maxHeight: "70%",
+    borderRadius: radius.lg,
     backgroundColor: colors.background,
     paddingVertical: 16,
     paddingHorizontal: 20,
   } as ViewStyle,
   modalTitle: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
     marginBottom: 12,
     color: colors.textPrimary,
   } as TextStyle,
@@ -203,7 +203,7 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
   } as TextStyle,
   optionLabelSelected: {
-    fontWeight: '600',
+    fontWeight: "600",
     color: colors.primary,
   } as TextStyle,
 });
