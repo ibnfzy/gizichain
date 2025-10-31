@@ -231,6 +231,10 @@ export function DashboardScreen() {
     }
   }, [motherId]);
 
+  const handleOpenMotherUpdate = useCallback(() => {
+    router.push("/mother-update");
+  }, [router]);
+
   const statusCardStyle = useMemo<StyleProp<ViewStyle>>(
     () => [
       globalStyles.cardPastel as ViewStyle,
@@ -414,6 +418,25 @@ export function DashboardScreen() {
 
       {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
+      <View style={styles.updateSection}>
+        <InfoCard
+          title="Perbarui Data Ibu"
+          variant="pastel"
+          style={styles.updateCard}
+          contentContainerStyle={styles.updateContent}
+        >
+          <Text style={styles.updateDescription}>
+            Pastikan informasi kesehatan dan data pribadi Anda selalu terbaru
+            agar rekomendasi gizi lebih akurat.
+          </Text>
+          <AppButton
+            label="Perbarui Sekarang"
+            onPress={handleOpenMotherUpdate}
+            style={styles.updateButton}
+          />
+        </InfoCard>
+      </View>
+
       <View style={styles.signOutContainer}>
         <AppButton
           label="Keluar"
@@ -570,6 +593,24 @@ const styles = StyleSheet.create({
     ...typography.caption,
     color: colors.danger,
   } as TextStyle,
+  updateSection: {
+    marginTop: spacing.xxxl,
+  } as ViewStyle,
+  updateCard: {
+    paddingVertical: spacing.xxl,
+  } as ViewStyle,
+  updateContent: {
+    gap: spacing.lg,
+  } as ViewStyle,
+  updateDescription: {
+    ...typography.body,
+    color: colors.textPrimary,
+    lineHeight: 22,
+  } as TextStyle,
+  updateButton: {
+    alignSelf: "flex-start",
+    paddingHorizontal: spacing.lg,
+  } as ViewStyle,
   signOutContainer: {
     marginTop: spacing.xxxl,
   } as ViewStyle,
