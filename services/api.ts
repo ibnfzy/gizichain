@@ -173,6 +173,12 @@ export interface RegisterPayload {
   ibu: RegisterMotherPayload;
 }
 
+export interface MotherProfile extends RegisterMotherPayload {
+  id: string | number;
+}
+
+export type MotherProfileUpdatePayload = RegisterMotherPayload;
+
 export interface InferenceStatusMeta {
   code?: string;
   label?: string;
@@ -262,6 +268,155 @@ export const registerRequest = async (
   }
 
   return data.data;
+};
+
+const parseMotherNumberField = (
+  value: unknown,
+  fallback = 0
+): number => {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value;
+  }
+
+  if (typeof value === "string") {
+    const normalized = value.replace(",", ".").trim();
+
+    if (normalized.length > 0) {
+      const parsed = Number(normalized);
+
+      if (Number.isFinite(parsed)) {
+        return parsed;
+      }
+    }
+  }
+
+  return fallback;
+};
+
+const parseMotherListField = (value: unknown): string[] => {
+  if (Array.isArray(value)) {
+    return value
+      .map((item) =>
+        typeof item === "string" ? item.trim() : String(item ?? "").trim()
+      )
+      .filter((item) => item.length > 0);
+  }
+
+  if (typeof value === "string") {
+    return value
+      .split(",")
+      .map((item) => item.trim())
+      .filter((item) => item.length > 0);
+  }
+
+  return [];
+};
+
+const parseMotherStringField = (
+  value: unknown,
+  fallback = ""
+): string => {
+  if (typeof value === "string" && value.trim().length > 0) {
+    return value.trim();
+  }
+
+  return fallback;
+};
+
+const resolveMotherRecord = (
+  payload: unknown
+): Record<string, unknown> | undefined => {
+  if (!isRecord(payload)) {
+    return undefined;
+  }
+
+  if (isRecord(payload.mother)) {
+    return payload.mother;
+  }
+
+  if (isRecord(payload.ibu)) {
+    return payload.ibu;
+  }
+
+  return payload;
+};
+
+const parseMotherProfile = (
+  payload: unknown,
+  fallbackId: string | number
+): MotherProfile => {
+  const resolved = resolveMotherRecord(payload) ?? {};
+
+  const idCandidate =
+    (resolved.id as unknown) ??
+    (resolved.mother_id as unknown) ??
+    (resolved.motherId as unknown) ??
+    fallbackId;
+
+  const id =
+    typeof idCandidate === "string" || typeof idCandidate === "number"
+      ? idCandidate
+      : fallbackId;
+
+  return {
+    id,
+    bb: parseMotherNumberField(resolved.bb),
+    tb: parseMotherNumberField(resolved.tb),
+    umur: parseMotherNumberField(resolved.umur),
+    usia_bayi_bln: parseMotherNumberField(
+      resolved.usia_bayi_bln ?? resolved.usia_bayi
+    ),
+    laktasi_tipe: parseMotherStringField(
+      resolved.laktasi_tipe ?? resolved.laktasiTipe,
+      "eksklusif"
+    ),
+    aktivitas: parseMotherStringField(resolved.aktivitas, "ringan"),
+    alergi: parseMotherListField(resolved.alergi),
+    preferensi: parseMotherListField(resolved.preferensi),
+    riwayat_penyakit: parseMotherListField(
+      resolved.riwayat_penyakit ?? resolved.riwayatPenyakit
+    ),
+  };
+};
+
+export const getMotherProfile = async (
+  motherId: string | number
+): Promise<MotherProfile> => {
+  try {
+    const { data } = await api.get<ApiResponse<unknown>>(
+      `/api/mothers/${motherId}`
+    );
+
+    if (!data.status) {
+      throw createApiError(data);
+    }
+
+    return parseMotherProfile(data.data, motherId);
+  } catch (error) {
+    throw normalizeApiError(error);
+  }
+};
+
+export const updateMotherProfile = async (
+  motherId: string | number,
+  payload: MotherProfileUpdatePayload
+): Promise<MotherProfile> => {
+  try {
+    const { data } = await api.put<ApiResponse<unknown>>(
+      `/api/mothers/${motherId}`,
+      payload
+    );
+
+    if (!data.status) {
+      throw createApiError(data);
+    }
+
+    const responsePayload = data.data ?? payload;
+
+    return parseMotherProfile(responsePayload, motherId);
+  } catch (error) {
+    throw normalizeApiError(error);
+  }
 };
 
 interface LatestInferenceResponse {
