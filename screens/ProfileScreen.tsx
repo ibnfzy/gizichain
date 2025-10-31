@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useRouter } from 'expo-router';
 import {
   KeyboardAvoidingView,
   Platform,
@@ -21,8 +22,14 @@ export function ProfileScreen() {
   const [address, setAddress] = useState('Jl. Mawar No. 12, Bandung');
   const [notes, setNotes] = useState('Tidak ada alergi yang diketahui.');
 
+  const router = useRouter();
+
   const screenStyle = globalStyles.screen as StyleProp<ViewStyle>;
   const cardStyle = globalStyles.card as StyleProp<ViewStyle>;
+
+  const handleNavigateToMotherUpdate = () => {
+    router.push('/mother-update');
+  };
 
   return (
     <KeyboardAvoidingView
@@ -50,6 +57,15 @@ export function ProfileScreen() {
             </View>
           </View>
         </InfoCard>
+
+        <View style={styles.quickAction}>
+          <AppButton
+            label="Edit Profil Ibu"
+            onPress={handleNavigateToMotherUpdate}
+            variant="primary"
+            style={styles.editButton}
+          />
+        </View>
 
         <View style={[cardStyle, styles.formCard]}>
           <Text style={styles.formTitle}>Informasi Dasar</Text>
@@ -130,6 +146,14 @@ const styles = StyleSheet.create({
   } as TextStyle,
   formCard: {
     gap: spacing.md,
+  } as ViewStyle,
+  quickAction: {
+    alignItems: 'flex-end',
+  } as ViewStyle,
+  editButton: {
+    width: 'auto',
+    paddingHorizontal: spacing.xl,
+    marginTop: spacing.sm,
   } as ViewStyle,
   formTitle: {
     ...typography.subtitle,
