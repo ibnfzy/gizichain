@@ -93,7 +93,11 @@ export class ApiRequestError extends Error {
 
   constructor(
     message: string,
-    options: { status?: boolean; fieldErrors?: ApiFieldErrors; payload?: unknown } = {}
+    options: {
+      status?: boolean;
+      fieldErrors?: ApiFieldErrors;
+      payload?: unknown;
+    } = {}
   ) {
     super(message);
     this.name = "ApiRequestError";
@@ -253,7 +257,12 @@ export const loginRequest = async (
 ): Promise<AuthPayload> => {
   const { data } = await api.post<AuthResponse>("/api/auth/login", payload);
   if (!data.status) {
-    throw createApiError(data);
+    const error: ApiErrorResponse = {
+      status: data.status,
+      message: data.message,
+      data: data.data,
+    };
+    throw createApiError(error);
   }
 
   return data.data;
@@ -264,16 +273,18 @@ export const registerRequest = async (
 ): Promise<AuthPayload> => {
   const { data } = await api.post<AuthResponse>("/api/auth/register", payload);
   if (!data.status) {
-    throw createApiError(data);
+    const error: ApiErrorResponse = {
+      status: data.status,
+      message: data.message,
+      data: data.data,
+    };
+    throw createApiError(error);
   }
 
   return data.data;
 };
 
-const parseMotherNumberField = (
-  value: unknown,
-  fallback = 0
-): number => {
+const parseMotherNumberField = (value: unknown, fallback = 0): number => {
   if (typeof value === "number" && Number.isFinite(value)) {
     return value;
   }
@@ -312,10 +323,7 @@ const parseMotherListField = (value: unknown): string[] => {
   return [];
 };
 
-const parseMotherStringField = (
-  value: unknown,
-  fallback = ""
-): string => {
+const parseMotherStringField = (value: unknown, fallback = ""): string => {
   if (typeof value === "string" && value.trim().length > 0) {
     return value.trim();
   }
@@ -388,7 +396,12 @@ export const getMotherProfile = async (
     );
 
     if (!data.status) {
-      throw createApiError(data);
+      const error: ApiErrorResponse = {
+        status: data.status,
+        message: data.message,
+        data: data.data,
+      };
+      throw createApiError(error);
     }
 
     return parseMotherProfile(data.data, motherId);
@@ -408,7 +421,12 @@ export const updateMotherProfile = async (
     );
 
     if (!data.status) {
-      throw createApiError(data);
+      const error: ApiErrorResponse = {
+        status: data.status,
+        message: data.message,
+        data: data.data,
+      };
+      throw createApiError(error);
     }
 
     const responsePayload = data.data ?? payload;
@@ -568,9 +586,7 @@ export const fetchLatestInference = async (
       inference.fluid
     ),
     updatedAt:
-      inference.created_at_human ??
-      inference.updated_at ??
-      inference.updatedAt,
+      inference.created_at_human ?? inference.updated_at ?? inference.updatedAt,
   };
 };
 
@@ -715,7 +731,9 @@ export const fetchLatestConsultation = async (
       throw createApiError(data as ApiErrorResponse);
     }
 
-    const consultations = normalizeConsultationList((data as ApiResponse<unknown>).data);
+    const consultations = normalizeConsultationList(
+      (data as ApiResponse<unknown>).data
+    );
 
     if (consultations.length === 0) {
       return null;
@@ -743,7 +761,9 @@ export interface ConsultationMessage {
   humanize?: string;
 }
 
-const parseConsultationMessage = (value: unknown): ConsultationMessage | null => {
+const parseConsultationMessage = (
+  value: unknown
+): ConsultationMessage | null => {
   if (!isRecord(value)) {
     return null;
   }
@@ -768,7 +788,9 @@ const parseConsultationMessage = (value: unknown): ConsultationMessage | null =>
   };
 };
 
-const normalizeConsultationMessages = (value: unknown): ConsultationMessage[] => {
+const normalizeConsultationMessages = (
+  value: unknown
+): ConsultationMessage[] => {
   if (Array.isArray(value)) {
     return value
       .map((item) => parseConsultationMessage(item))
