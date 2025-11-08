@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useRouter } from 'expo-router';
+import { useRouter } from "expo-router";
+import { useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -10,17 +10,17 @@ import {
   type StyleProp,
   type TextStyle,
   type ViewStyle,
-} from 'react-native';
+} from "react-native";
 
-import { AppButton, AppTextInput, InfoCard } from '@/components/ui';
-import { colors, globalStyles, spacing, typography } from '@/styles';
+import { AppButton, AppTextInput, InfoCard } from "@/components/ui";
+import { colors, globalStyles, spacing, typography } from "@/styles";
 
 export function ProfileScreen() {
-  const [fullName, setFullName] = useState('Siti Aminah');
-  const [email, setEmail] = useState('siti.aminah@example.com');
-  const [phone, setPhone] = useState('0812 3456 7890');
-  const [address, setAddress] = useState('Jl. Mawar No. 12, Bandung');
-  const [notes, setNotes] = useState('Tidak ada alergi yang diketahui.');
+  const [fullName, setFullName] = useState("Siti Aminah");
+  const [email, setEmail] = useState("siti.aminah@example.com");
+  const [phone, setPhone] = useState("0812 3456 7890");
+  const [address, setAddress] = useState("Jl. Mawar No. 12, Bandung");
+  const [notes, setNotes] = useState("Tidak ada alergi yang diketahui.");
 
   const router = useRouter();
 
@@ -28,12 +28,12 @@ export function ProfileScreen() {
   const cardStyle = globalStyles.card as StyleProp<ViewStyle>;
 
   const handleNavigateToMotherUpdate = () => {
-    router.push('/mother-update');
+    router.push("../mother-update");
   };
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
       style={screenStyle}
     >
       <ScrollView
@@ -42,10 +42,15 @@ export function ProfileScreen() {
       >
         <Text style={styles.title}>Profil Ibu</Text>
         <Text style={styles.subtitle}>
-          Perbarui data pribadi dan preferensi kesehatan Anda agar rekomendasi gizi tetap relevan.
+          Perbarui data pribadi dan preferensi kesehatan Anda agar rekomendasi
+          gizi tetap relevan.
         </Text>
 
-        <InfoCard title="Status singkat" variant="pastel" style={styles.summaryCard}>
+        <InfoCard
+          title="Status singkat"
+          variant="pastel"
+          style={styles.summaryCard}
+        >
           <View style={styles.summaryRow}>
             <View>
               <Text style={styles.summaryLabel}>Kehamilan</Text>
@@ -105,7 +110,11 @@ export function ProfileScreen() {
             multiline
             style={[styles.input, styles.multiline]}
           />
-          <AppButton label="Simpan Perubahan" variant="pastel" style={styles.submitButton} />
+          <AppButton
+            label="Simpan Perubahan"
+            variant="pastel"
+            style={styles.submitButton}
+          />
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -131,8 +140,8 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.xl,
   } as ViewStyle,
   summaryRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     gap: spacing.xxl,
   } as ViewStyle,
   summaryLabel: {
@@ -148,10 +157,10 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   } as ViewStyle,
   quickAction: {
-    alignItems: 'flex-end',
+    alignItems: "flex-end",
   } as ViewStyle,
   editButton: {
-    width: 'auto',
+    width: "auto",
     paddingHorizontal: spacing.xl,
     marginTop: spacing.sm,
   } as ViewStyle,
@@ -165,7 +174,7 @@ const styles = StyleSheet.create({
   } as TextStyle,
   multiline: {
     minHeight: 88,
-    textAlignVertical: 'top',
+    textAlignVertical: "top",
   } as TextStyle,
   submitButton: {
     marginTop: spacing.lg,
