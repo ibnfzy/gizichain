@@ -179,9 +179,18 @@ export interface RegisterPayload {
 
 export interface MotherProfile extends RegisterMotherPayload {
   id: string | number;
+  name?: string;
+  email?: string;
+  riwayat?: string[];
 }
 
-export type MotherProfileUpdatePayload = RegisterMotherPayload;
+export type MotherProfileUpdatePayload =
+  Partial<RegisterMotherPayload> & {
+    name?: string;
+    email?: string;
+    password?: string;
+    riwayat?: string[];
+  };
 
 export interface InferenceStatusMeta {
   code?: string;
@@ -366,24 +375,60 @@ const parseMotherProfile = (
       ? idCandidate
       : fallbackId;
 
+  const resolvedUser = isRecord(resolved.user) ? resolved.user : undefined;
+  const resolvedProfile = isRecord(resolved.profile)
+    ? resolved.profile
+    : undefined;
+
+  const alergi = parseMotherListField(
+    resolved.alergi ?? resolvedProfile?.alergi ?? resolvedUser?.alergi
+  );
+  const preferensi = parseMotherListField(
+    resolved.preferensi ??
+      resolvedProfile?.preferensi ??
+      resolvedUser?.preferensi
+  );
+  const riwayatList = parseMotherListField(
+    resolved.riwayat ??
+      resolved.riwayat_penyakit ??
+      resolved.riwayatPenyakit ??
+      resolvedProfile?.riwayat ??
+      resolvedProfile?.riwayat_penyakit ??
+      resolvedUser?.riwayat
+  );
+
   return {
     id,
-    bb: parseMotherNumberField(resolved.bb),
-    tb: parseMotherNumberField(resolved.tb),
-    umur: parseMotherNumberField(resolved.umur),
+    name: parseMotherStringField(
+      resolved.name ?? resolvedProfile?.name ?? resolvedUser?.name
+    ),
+    email: parseMotherStringField(
+      resolved.email ?? resolvedProfile?.email ?? resolvedUser?.email
+    ),
+    bb: parseMotherNumberField(resolved.bb ?? resolvedProfile?.bb),
+    tb: parseMotherNumberField(resolved.tb ?? resolvedProfile?.tb),
+    umur: parseMotherNumberField(resolved.umur ?? resolvedProfile?.umur),
     usia_bayi_bln: parseMotherNumberField(
-      resolved.usia_bayi_bln ?? resolved.usia_bayi
+      resolved.usia_bayi_bln ??
+        resolved.usia_bayi ??
+        resolvedProfile?.usia_bayi_bln ??
+        resolvedProfile?.usia_bayi
     ),
     laktasi_tipe: parseMotherStringField(
-      resolved.laktasi_tipe ?? resolved.laktasiTipe,
+      resolved.laktasi_tipe ??
+        resolved.laktasiTipe ??
+        resolvedProfile?.laktasi_tipe ??
+        resolvedProfile?.laktasiTipe,
       "eksklusif"
     ),
-    aktivitas: parseMotherStringField(resolved.aktivitas, "ringan"),
-    alergi: parseMotherListField(resolved.alergi),
-    preferensi: parseMotherListField(resolved.preferensi),
-    riwayat_penyakit: parseMotherListField(
-      resolved.riwayat_penyakit ?? resolved.riwayatPenyakit
+    aktivitas: parseMotherStringField(
+      resolved.aktivitas ?? resolvedProfile?.aktivitas,
+      "ringan"
     ),
+    alergi,
+    preferensi,
+    riwayat: riwayatList,
+    riwayat_penyakit: riwayatList,
   };
 };
 

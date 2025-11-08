@@ -131,7 +131,8 @@ export function MotherProfileEditScreen() {
       setAktivitas(profile.aktivitas ?? 'ringan');
       setAlergi(profile.alergi.join(', '));
       setPreferensi(profile.preferensi.join(', '));
-      setRiwayatPenyakit(profile.riwayat_penyakit.join(', '));
+      const resolvedRiwayat = profile.riwayat ?? profile.riwayat_penyakit;
+      setRiwayatPenyakit(resolvedRiwayat.join(', '));
     } catch (err) {
       const apiError = normalizeApiError(err);
       setError(apiError.message);
@@ -211,6 +212,8 @@ export function MotherProfileEditScreen() {
 
     setError(null);
 
+    const parsedRiwayat = parseListField(riwayatPenyakit);
+
     return {
       bb: parsedBb!,
       tb: parsedTb!,
@@ -220,7 +223,8 @@ export function MotherProfileEditScreen() {
       aktivitas: aktivitas.trim(),
       alergi: parseListField(alergi),
       preferensi: parseListField(preferensi),
-      riwayat_penyakit: parseListField(riwayatPenyakit),
+      riwayat: parsedRiwayat,
+      riwayat_penyakit: parsedRiwayat,
     };
   };
 
@@ -252,7 +256,9 @@ export function MotherProfileEditScreen() {
       setAktivitas(updatedProfile.aktivitas ?? 'ringan');
       setAlergi(updatedProfile.alergi.join(', '));
       setPreferensi(updatedProfile.preferensi.join(', '));
-      setRiwayatPenyakit(updatedProfile.riwayat_penyakit.join(', '));
+      const resolvedRiwayat =
+        updatedProfile.riwayat ?? updatedProfile.riwayat_penyakit;
+      setRiwayatPenyakit(resolvedRiwayat.join(', '));
     } catch (err) {
       const apiError = normalizeApiError(err);
       setError(apiError.message);
@@ -366,7 +372,12 @@ export function MotherProfileEditScreen() {
                 placeholder="Riwayat penyakit (pisahkan dengan koma)"
                 value={riwayatPenyakit}
                 onChangeText={setRiwayatPenyakit}
-                errorMessage={resolveFieldError('riwayat_penyakit', 'mother.riwayat_penyakit')}
+                errorMessage={resolveFieldError(
+                  'riwayat_penyakit',
+                  'mother.riwayat_penyakit',
+                  'riwayat',
+                  'mother.riwayat',
+                )}
               />
             </View>
 
