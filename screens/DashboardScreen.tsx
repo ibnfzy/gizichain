@@ -5,12 +5,14 @@ import { InferenceData, fetchLatestInference } from "@/services/api";
 import { colors, globalStyles, spacing, typography } from "@/styles";
 import { Feather } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { StyleProp, TextStyle, ViewStyle } from "react-native";
 import {
   Animated,
   Easing,
+  Pressable,
   RefreshControl,
   ScrollView,
   StyleSheet,
@@ -91,6 +93,8 @@ const normalizeStatus = (status?: string) => {
   return "unknown" as const;
 };
 
+const PROFILE_REMINDER_KEY = "lastShownReminder";
+
 export function DashboardScreen() {
   const router = useRouter();
   const { user, motherId, logout, isLoading: authLoading } = useAuth();
@@ -100,6 +104,7 @@ export function DashboardScreen() {
   const [error, setError] = useState<string | null>(null);
   const [noInferenceAvailable, setNoInferenceAvailable] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [showProfileReminder, setShowProfileReminder] = useState(false);
   const inferenceAnimation = useRef(new Animated.Value(0)).current;
 
   const latestScheduleReminder = scheduleReminders[0];
@@ -204,6 +209,62 @@ export function DashboardScreen() {
   }, [fetchData]);
 
   useEffect(() => {
+    let isMounted = true;
+
+    const checkProfileReminder = async () => {
+      try {
+        const storedTimestamp = await AsyncStorage.getItem(
+          PROFILE_REMINDER_KEY
+        );
+        const now = new Date();
+
+        if (!storedTimestamp) {
+          if (isMounted) {
+            setShowProfileReminder(true);
+          }
+          await AsyncStorage.setItem(
+            PROFILE_REMINDER_KEY,
+            now.toISOString()
+          );
+          return;
+        }
+
+        const lastShown = new Date(storedTimestamp);
+        const diff = now.getTime() - lastShown.getTime();
+
+        if (Number.isNaN(lastShown.getTime()) || diff >= 24 * 60 * 60 * 1000) {
+          if (isMounted) {
+            setShowProfileReminder(true);
+          }
+          await AsyncStorage.setItem(
+            PROFILE_REMINDER_KEY,
+            now.toISOString()
+          );
+        }
+      } catch (err) {
+        console.warn("Failed to read profile reminder state", err);
+        if (isMounted) {
+          setShowProfileReminder(true);
+        }
+        try {
+          await AsyncStorage.setItem(
+            PROFILE_REMINDER_KEY,
+            new Date().toISOString()
+          );
+        } catch (setErr) {
+          console.warn("Failed to set fallback profile reminder timestamp", setErr);
+        }
+      }
+    };
+
+    checkProfileReminder();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
     if (!authLoading && !user) {
       router.replace("/login");
     }
@@ -285,6 +346,18 @@ export function DashboardScreen() {
     }
   }, [markAsRead, router, scheduleReminders]);
 
+  const handleDismissProfileReminder = useCallback(async () => {
+    setShowProfileReminder(false);
+    try {
+      await AsyncStorage.setItem(
+        PROFILE_REMINDER_KEY,
+        new Date().toISOString()
+      );
+    } catch (err) {
+      console.warn("Failed to update profile reminder dismissal", err);
+    }
+  }, []);
+
   return (
     <ScrollView
       style={styles.container}
@@ -305,6 +378,27 @@ export function DashboardScreen() {
           Berikut adalah status gizi dan kebutuhan harian Anda hari ini.
         </Text>
       </LinearGradient>
+
+      {showProfileReminder ? (
+        <Animated.View style={[styles.profileReminder, animatedEntranceStyle]}>
+          <View style={styles.profileReminderHeader}>
+            <Text style={styles.profileReminderTitle}>Pengingat Profil</Text>
+            <Pressable
+              onPress={handleDismissProfileReminder}
+              style={styles.profileReminderDismiss}
+              accessibilityRole="button"
+              accessibilityLabel="Tutup pengingat pembaruan profil"
+            >
+              <Feather name="x" size={18} color={colors.textMuted} />
+              <Text style={styles.profileReminderDismissText}>Hapus</Text>
+            </Pressable>
+          </View>
+          <Text style={styles.profileReminderMessage}>
+            Mohon perbarui informasi diri Kamu hari ini agar saran dan
+            pemantauan yang diberikan lebih sesuai dengan kondisi Kamu saat ini.
+          </Text>
+        </Animated.View>
+      ) : null}
 
       {latestScheduleReminder ? (
         <Animated.View style={[styles.reminderBanner, animatedEntranceStyle]}>
@@ -477,6 +571,42 @@ const styles = StyleSheet.create({
     padding: spacing.xl,
     marginBottom: spacing.xxl,
   } as ViewStyle,
+  profileReminder: {
+    backgroundColor: colors.skyPastel,
+    borderRadius: 24,
+    padding: spacing.xl,
+    marginBottom: spacing.xl,
+    borderWidth: 1,
+    borderColor: colors.primaryPastel,
+    gap: spacing.md,
+  } as ViewStyle,
+  profileReminderHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  } as ViewStyle,
+  profileReminderTitle: {
+    ...typography.subtitle,
+    color: colors.primary,
+  } as TextStyle,
+  profileReminderMessage: {
+    ...typography.body,
+    color: colors.textPrimary,
+    lineHeight: 22,
+  } as TextStyle,
+  profileReminderDismiss: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.xs,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderRadius: 999,
+    backgroundColor: colors.card,
+  } as ViewStyle,
+  profileReminderDismissText: {
+    ...typography.caption,
+    color: colors.textMuted,
+  } as TextStyle,
   reminderBanner: {
     backgroundColor: colors.primaryPastel,
     borderRadius: 24,
