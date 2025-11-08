@@ -18,8 +18,6 @@ import { colors, globalStyles, spacing, typography } from "@/styles";
 export function ProfileScreen() {
   const [fullName, setFullName] = useState("Siti Aminah");
   const [email, setEmail] = useState("siti.aminah@example.com");
-  const [phone, setPhone] = useState("0812 3456 7890");
-  const [address, setAddress] = useState("Jl. Mawar No. 12, Bandung");
   const [notes, setNotes] = useState("Tidak ada alergi yang diketahui.");
 
   const router = useRouter();
@@ -87,20 +85,6 @@ export function ProfileScreen() {
             keyboardType="email-address"
             autoCapitalize="none"
             style={styles.input}
-          />
-          <AppTextInput
-            value={phone}
-            onChangeText={setPhone}
-            placeholder="Nomor telepon"
-            keyboardType="phone-pad"
-            style={styles.input}
-          />
-          <AppTextInput
-            value={address}
-            onChangeText={setAddress}
-            placeholder="Alamat"
-            multiline
-            style={[styles.input, styles.multiline]}
           />
           <Text style={styles.formTitle}>Catatan Kesehatan</Text>
           <AppTextInput
