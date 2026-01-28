@@ -97,7 +97,7 @@ export class ApiRequestError extends Error {
       status?: boolean;
       fieldErrors?: ApiFieldErrors;
       payload?: unknown;
-    } = {}
+    } = {},
   ) {
     super(message);
     this.name = "ApiRequestError";
@@ -184,13 +184,12 @@ export interface MotherProfile extends RegisterMotherPayload {
   riwayat?: string[];
 }
 
-export type MotherProfileUpdatePayload =
-  Partial<RegisterMotherPayload> & {
-    name?: string;
-    email?: string;
-    password?: string;
-    riwayat?: string[];
-  };
+export type MotherProfileUpdatePayload = Partial<RegisterMotherPayload> & {
+  name?: string;
+  email?: string;
+  password?: string;
+  riwayat?: string[];
+};
 
 export interface InferenceStatusMeta {
   code?: string;
@@ -246,7 +245,7 @@ interface InferencePayload {
 }
 
 const api = axios.create({
-  baseURL: "https://olive.jultdev.site",
+  baseURL: "https://olive.jultdev.cloud",
   timeout: 15000,
   headers: {
     "Content-Type": "application/json",
@@ -262,7 +261,7 @@ export const setAuthToken = (token: string | null) => {
 };
 
 export const loginRequest = async (
-  payload: LoginPayload
+  payload: LoginPayload,
 ): Promise<AuthPayload> => {
   const { data } = await api.post<AuthResponse>("/api/auth/login", payload);
   if (!data.status) {
@@ -278,7 +277,7 @@ export const loginRequest = async (
 };
 
 export const registerRequest = async (
-  payload: RegisterPayload
+  payload: RegisterPayload,
 ): Promise<AuthPayload> => {
   const { data } = await api.post<AuthResponse>("/api/auth/register", payload);
   if (!data.status) {
@@ -317,7 +316,7 @@ const parseMotherListField = (value: unknown): string[] => {
   if (Array.isArray(value)) {
     return value
       .map((item) =>
-        typeof item === "string" ? item.trim() : String(item ?? "").trim()
+        typeof item === "string" ? item.trim() : String(item ?? "").trim(),
       )
       .filter((item) => item.length > 0);
   }
@@ -341,7 +340,7 @@ const parseMotherStringField = (value: unknown, fallback = ""): string => {
 };
 
 const resolveMotherRecord = (
-  payload: unknown
+  payload: unknown,
 ): Record<string, unknown> | undefined => {
   if (!isRecord(payload)) {
     return undefined;
@@ -360,7 +359,7 @@ const resolveMotherRecord = (
 
 const parseMotherProfile = (
   payload: unknown,
-  fallbackId: string | number
+  fallbackId: string | number,
 ): MotherProfile => {
   const resolved = resolveMotherRecord(payload) ?? {};
 
@@ -381,12 +380,12 @@ const parseMotherProfile = (
     : undefined;
 
   const alergi = parseMotherListField(
-    resolved.alergi ?? resolvedProfile?.alergi ?? resolvedUser?.alergi
+    resolved.alergi ?? resolvedProfile?.alergi ?? resolvedUser?.alergi,
   );
   const preferensi = parseMotherListField(
     resolved.preferensi ??
       resolvedProfile?.preferensi ??
-      resolvedUser?.preferensi
+      resolvedUser?.preferensi,
   );
   const riwayatList = parseMotherListField(
     resolved.riwayat ??
@@ -394,16 +393,16 @@ const parseMotherProfile = (
       resolved.riwayatPenyakit ??
       resolvedProfile?.riwayat ??
       resolvedProfile?.riwayat_penyakit ??
-      resolvedUser?.riwayat
+      resolvedUser?.riwayat,
   );
 
   return {
     id,
     name: parseMotherStringField(
-      resolved.name ?? resolvedProfile?.name ?? resolvedUser?.name
+      resolved.name ?? resolvedProfile?.name ?? resolvedUser?.name,
     ),
     email: parseMotherStringField(
-      resolved.email ?? resolvedProfile?.email ?? resolvedUser?.email
+      resolved.email ?? resolvedProfile?.email ?? resolvedUser?.email,
     ),
     bb: parseMotherNumberField(resolved.bb ?? resolvedProfile?.bb),
     tb: parseMotherNumberField(resolved.tb ?? resolvedProfile?.tb),
@@ -412,18 +411,18 @@ const parseMotherProfile = (
       resolved.usia_bayi_bln ??
         resolved.usia_bayi ??
         resolvedProfile?.usia_bayi_bln ??
-        resolvedProfile?.usia_bayi
+        resolvedProfile?.usia_bayi,
     ),
     laktasi_tipe: parseMotherStringField(
       resolved.laktasi_tipe ??
         resolved.laktasiTipe ??
         resolvedProfile?.laktasi_tipe ??
         resolvedProfile?.laktasiTipe,
-      "eksklusif"
+      "eksklusif",
     ),
     aktivitas: parseMotherStringField(
       resolved.aktivitas ?? resolvedProfile?.aktivitas,
-      "ringan"
+      "ringan",
     ),
     alergi,
     preferensi,
@@ -433,11 +432,11 @@ const parseMotherProfile = (
 };
 
 export const getMotherProfile = async (
-  motherId: string | number
+  motherId: string | number,
 ): Promise<MotherProfile> => {
   try {
     const { data } = await api.get<ApiResponse<unknown>>(
-      `/api/mothers/${motherId}`
+      `/api/mothers/${motherId}`,
     );
 
     if (!data.status) {
@@ -457,12 +456,12 @@ export const getMotherProfile = async (
 
 export const updateMotherProfile = async (
   motherId: string | number,
-  payload: MotherProfileUpdatePayload
+  payload: MotherProfileUpdatePayload,
 ): Promise<MotherProfile> => {
   try {
     const { data } = await api.put<ApiResponse<unknown>>(
       `/api/mothers/${motherId}`,
-      payload
+      payload,
     );
 
     if (!data.status) {
@@ -488,7 +487,7 @@ interface LatestInferenceResponse {
 }
 
 const parseNumber = (
-  value: number | string | undefined | null
+  value: number | string | undefined | null,
 ): number | undefined => {
   if (value === undefined || value === null) {
     return undefined;
@@ -503,7 +502,7 @@ const getRequirementValue = (
   output: InferenceOutput | undefined,
   legacy: InferenceRequirements | undefined,
   legacyDaily: InferenceRequirements | undefined,
-  fallback: number | string | undefined
+  fallback: number | string | undefined,
 ): number => {
   const requirements = output?.requirements ?? {};
   const dailyRequirements = output?.daily_requirements ?? {};
@@ -526,7 +525,7 @@ const getRequirementValue = (
 };
 
 const parseInferenceStatus = (
-  status: InferencePayload["status"]
+  status: InferencePayload["status"],
 ): { value: string; meta?: InferenceStatusMeta } => {
   if (!status) {
     return { value: "unknown" };
@@ -571,7 +570,7 @@ const parseInferenceStatus = (
 };
 
 export const fetchLatestInference = async (
-  motherId: string | number
+  motherId: string | number,
 ): Promise<InferenceData | null> => {
   const response = await api.get<
     ApiResponse<LatestInferenceResponse | LatestInferenceResponse[] | null>
@@ -602,7 +601,7 @@ export const fetchLatestInference = async (
   const output = inference.output ?? {};
 
   const { value: statusValue, meta: statusMeta } = parseInferenceStatus(
-    inference.status
+    inference.status,
   );
 
   return {
@@ -614,21 +613,21 @@ export const fetchLatestInference = async (
       output,
       requirements,
       dailyRequirements,
-      inference.energy
+      inference.energy,
     ),
     protein: getRequirementValue(
       "protein",
       output,
       requirements,
       dailyRequirements,
-      inference.protein
+      inference.protein,
     ),
     fluid: getRequirementValue(
       "fluid",
       output,
       requirements,
       dailyRequirements,
-      inference.fluid
+      inference.fluid,
     ),
     updatedAt:
       inference.created_at_human ?? inference.updated_at ?? inference.updatedAt,
@@ -748,7 +747,7 @@ const sortConsultationsByDateDesc = (a: Consultation, b: Consultation) => {
 };
 
 export const fetchLatestConsultation = async (
-  options: ConsultationQueryOptions = {}
+  options: ConsultationQueryOptions = {},
 ): Promise<Consultation | null> => {
   const params: Record<string, string | number> = {};
 
@@ -769,7 +768,7 @@ export const fetchLatestConsultation = async (
       "/api/consultations",
       {
         params,
-      }
+      },
     );
 
     if (!data.status) {
@@ -777,7 +776,7 @@ export const fetchLatestConsultation = async (
     }
 
     const consultations = normalizeConsultationList(
-      (data as ApiResponse<unknown>).data
+      (data as ApiResponse<unknown>).data,
     );
 
     if (consultations.length === 0) {
@@ -807,7 +806,7 @@ export interface ConsultationMessage {
 }
 
 const parseConsultationMessage = (
-  value: unknown
+  value: unknown,
 ): ConsultationMessage | null => {
   if (!isRecord(value)) {
     return null;
@@ -834,7 +833,7 @@ const parseConsultationMessage = (
 };
 
 const normalizeConsultationMessages = (
-  value: unknown
+  value: unknown,
 ): ConsultationMessage[] => {
   if (Array.isArray(value)) {
     return value
@@ -848,10 +847,10 @@ const normalizeConsultationMessages = (
 };
 
 export const fetchConsultationMessages = async (
-  consultationId: string | number
+  consultationId: string | number,
 ): Promise<ConsultationMessage[]> => {
   const { data } = await api.get<ApiResponse<unknown> | ApiErrorResponse>(
-    `/api/consultations/${consultationId}/messages`
+    `/api/consultations/${consultationId}/messages`,
   );
 
   if (!data.status) {
@@ -875,7 +874,7 @@ export const sendConsultationMessage = async ({
     {
       consultation_id: consultationId,
       text,
-    }
+    },
   );
 
   if (!data.status) {
