@@ -1,9 +1,9 @@
-import { useMemo, useState } from 'react';
-import { Text, View } from 'react-native';
-import { useRouter } from 'expo-router';
-import { AuthLayout, AppSelect, AppTextInput } from '@/components/ui';
+import { AppSelect, AppTextInput, AuthLayout } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
 import { normalizeApiError } from '@/services/api';
+import { useRouter } from 'expo-router';
+import { useMemo, useState } from 'react';
+import { Text, View } from 'react-native';
 
 const LAKTASI_OPTIONS = [
   { label: 'Eksklusif', value: 'eksklusif' },
@@ -31,8 +31,6 @@ export function RegisterScreen() {
   const [usiaBayi, setUsiaBayi] = useState('');
   const [laktasiTipe, setLaktasiTipe] = useState('eksklusif');
   const [aktivitas, setAktivitas] = useState('ringan');
-  const [alergi, setAlergi] = useState('');
-  const [preferensi, setPreferensi] = useState('');
   const [riwayatPenyakit, setRiwayatPenyakit] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -228,8 +226,6 @@ export function RegisterScreen() {
       usia_bayi_bln: parsedUsiaBayi!,
       laktasi_tipe: laktasiTipe.trim(),
       aktivitas: aktivitas.trim(),
-      alergi: parseListField(alergi),
-      preferensi: parseListField(preferensi),
       riwayat_penyakit: parseListField(riwayatPenyakit),
     };
   };
@@ -410,22 +406,6 @@ export function RegisterScreen() {
               <Text style={{ fontSize: 12, color: '#6b7280' }}>
                 Isikan daftar dengan memisahkan setiap item menggunakan koma (,).
               </Text>
-              <AppTextInput
-                placeholder="Alergi (pisahkan dengan koma)"
-                value={alergi}
-                onChangeText={setAlergi}
-                errorMessage={resolveFieldError('alergi', 'ibu.alergi', 'mother.alergi')}
-              />
-              <AppTextInput
-                placeholder="Preferensi makanan (pisahkan dengan koma)"
-                value={preferensi}
-                onChangeText={setPreferensi}
-                errorMessage={resolveFieldError(
-                  'preferensi',
-                  'ibu.preferensi',
-                  'mother.preferensi'
-                )}
-              />
               <AppTextInput
                 placeholder="Riwayat penyakit (pisahkan dengan koma)"
                 value={riwayatPenyakit}

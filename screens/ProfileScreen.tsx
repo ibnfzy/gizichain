@@ -46,8 +46,6 @@ export function ProfileScreen() {
   const [usiaBayi, setUsiaBayi] = useState("");
   const [laktasiTipe, setLaktasiTipe] = useState("eksklusif");
   const [aktivitas, setAktivitas] = useState("ringan");
-  const [alergi, setAlergi] = useState("");
-  const [preferensi, setPreferensi] = useState("");
   const [riwayat, setRiwayat] = useState("");
 
   const [loading, setLoading] = useState(true);
@@ -139,8 +137,6 @@ export function ProfileScreen() {
         setUsiaBayi(String(profile.usia_bayi_bln ?? ""));
         setLaktasiTipe(profile.laktasi_tipe ?? "eksklusif");
         setAktivitas(profile.aktivitas ?? "ringan");
-        setAlergi(profile.alergi.join(", "));
-        setPreferensi(profile.preferensi.join(", "));
         setRiwayat((resolvedRiwayat ?? []).join(", "));
       } catch (err) {
         const apiError = normalizeApiError(err);
@@ -249,8 +245,6 @@ export function ProfileScreen() {
       usia_bayi_bln: parsedUsiaBayi!,
       laktasi_tipe: laktasiTipe.trim(),
       aktivitas: aktivitas.trim(),
-      alergi: parseListField(alergi),
-      preferensi: parseListField(preferensi),
       riwayat: parsedRiwayat,
       riwayat_penyakit: parsedRiwayat,
     };
@@ -262,7 +256,6 @@ export function ProfileScreen() {
     return payload;
   }, [
     aktivitas,
-    alergi,
     bb,
     email,
     laktasiTipe,
@@ -270,7 +263,6 @@ export function ProfileScreen() {
     parseListField,
     parseNumberField,
     password,
-    preferensi,
     riwayat,
     umur,
     updateFieldErrors,
@@ -306,8 +298,6 @@ export function ProfileScreen() {
       setUsiaBayi(String(updatedProfile.usia_bayi_bln ?? ""));
       setLaktasiTipe(updatedProfile.laktasi_tipe ?? "eksklusif");
       setAktivitas(updatedProfile.aktivitas ?? "ringan");
-      setAlergi(updatedProfile.alergi.join(", "));
-      setPreferensi(updatedProfile.preferensi.join(", "));
       setRiwayat((resolvedRiwayat ?? []).join(", "));
 
       const resolvedName =
@@ -354,7 +344,7 @@ export function ProfileScreen() {
       >
         <Text style={styles.title}>Profil Ibu</Text>
         <Text style={styles.subtitle}>
-          Perbarui data pribadi dan preferensi kesehatan agar rekomendasi gizi tetap relevan.
+          Perbarui data pribadi agar rekomendasi gizi tetap relevan.
         </Text>
 
         {success ? (
@@ -454,24 +444,6 @@ export function ProfileScreen() {
 
             <View style={styles.helperContainer}>
               <Text style={styles.helperText}>{helperText}</Text>
-              <AppTextInput
-                placeholder="Alergi (pisahkan dengan koma)"
-                value={alergi}
-                onChangeText={setAlergi}
-                errorMessage={resolveFieldError(
-                  "alergi",
-                  "mother.alergi"
-                )}
-              />
-              <AppTextInput
-                placeholder="Preferensi makanan (pisahkan dengan koma)"
-                value={preferensi}
-                onChangeText={setPreferensi}
-                errorMessage={resolveFieldError(
-                  "preferensi",
-                  "mother.preferensi"
-                )}
-              />
               <AppTextInput
                 placeholder="Riwayat kesehatan (pisahkan dengan koma)"
                 value={riwayat}

@@ -1,3 +1,4 @@
+import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
@@ -10,7 +11,6 @@ import {
   type TextStyle,
   type ViewStyle,
 } from 'react-native';
-import { useRouter } from 'expo-router';
 
 import { AppButton, AppSelect, AppTextInput } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
@@ -45,8 +45,6 @@ export function MotherProfileEditScreen() {
   const [usiaBayi, setUsiaBayi] = useState('');
   const [laktasiTipe, setLaktasiTipe] = useState('eksklusif');
   const [aktivitas, setAktivitas] = useState('ringan');
-  const [alergi, setAlergi] = useState('');
-  const [preferensi, setPreferensi] = useState('');
   const [riwayatPenyakit, setRiwayatPenyakit] = useState('');
 
   const [loading, setLoading] = useState(true);
@@ -129,8 +127,6 @@ export function MotherProfileEditScreen() {
       setUsiaBayi(String(profile.usia_bayi_bln ?? ''));
       setLaktasiTipe(profile.laktasi_tipe ?? 'eksklusif');
       setAktivitas(profile.aktivitas ?? 'ringan');
-      setAlergi(profile.alergi.join(', '));
-      setPreferensi(profile.preferensi.join(', '));
       const resolvedRiwayat = profile.riwayat ?? profile.riwayat_penyakit;
       setRiwayatPenyakit(resolvedRiwayat.join(', '));
     } catch (err) {
@@ -221,8 +217,6 @@ export function MotherProfileEditScreen() {
       usia_bayi_bln: parsedUsiaBayi!,
       laktasi_tipe: laktasiTipe.trim(),
       aktivitas: aktivitas.trim(),
-      alergi: parseListField(alergi),
-      preferensi: parseListField(preferensi),
       riwayat: parsedRiwayat,
       riwayat_penyakit: parsedRiwayat,
     };
@@ -254,8 +248,6 @@ export function MotherProfileEditScreen() {
       setUsiaBayi(String(updatedProfile.usia_bayi_bln ?? ''));
       setLaktasiTipe(updatedProfile.laktasi_tipe ?? 'eksklusif');
       setAktivitas(updatedProfile.aktivitas ?? 'ringan');
-      setAlergi(updatedProfile.alergi.join(', '));
-      setPreferensi(updatedProfile.preferensi.join(', '));
       const resolvedRiwayat =
         updatedProfile.riwayat ?? updatedProfile.riwayat_penyakit;
       setRiwayatPenyakit(resolvedRiwayat.join(', '));
@@ -356,18 +348,6 @@ export function MotherProfileEditScreen() {
             />
             <View style={styles.helperContainer}>
               <Text style={styles.helperText}>{helperText}</Text>
-              <AppTextInput
-                placeholder="Alergi (pisahkan dengan koma)"
-                value={alergi}
-                onChangeText={setAlergi}
-                errorMessage={resolveFieldError('alergi', 'mother.alergi')}
-              />
-              <AppTextInput
-                placeholder="Preferensi makanan (pisahkan dengan koma)"
-                value={preferensi}
-                onChangeText={setPreferensi}
-                errorMessage={resolveFieldError('preferensi', 'mother.preferensi')}
-              />
               <AppTextInput
                 placeholder="Riwayat penyakit (pisahkan dengan koma)"
                 value={riwayatPenyakit}

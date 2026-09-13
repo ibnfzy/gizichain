@@ -167,8 +167,6 @@ export interface RegisterMotherPayload {
   usia_bayi_bln: number;
   laktasi_tipe: string;
   aktivitas: string;
-  alergi: string[];
-  preferensi: string[];
   riwayat_penyakit: string[];
 }
 
@@ -379,14 +377,6 @@ const parseMotherProfile = (
     ? resolved.profile
     : undefined;
 
-  const alergi = parseMotherListField(
-    resolved.alergi ?? resolvedProfile?.alergi ?? resolvedUser?.alergi,
-  );
-  const preferensi = parseMotherListField(
-    resolved.preferensi ??
-      resolvedProfile?.preferensi ??
-      resolvedUser?.preferensi,
-  );
   const riwayatList = parseMotherListField(
     resolved.riwayat ??
       resolved.riwayat_penyakit ??
@@ -424,8 +414,6 @@ const parseMotherProfile = (
       resolved.aktivitas ?? resolvedProfile?.aktivitas,
       "ringan",
     ),
-    alergi,
-    preferensi,
     riwayat: riwayatList,
     riwayat_penyakit: riwayatList,
   };
